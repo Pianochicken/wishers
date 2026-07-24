@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Send, ShieldAlert, TrendingUp, DollarSign, Wallet, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Sparkles, Send, ShieldAlert, TrendingUp, DollarSign, RefreshCw, AlertTriangle } from 'lucide-react';
 import { VerifiedHuman } from './WorldIDGate';
 
 export interface ParsedWish {
@@ -23,22 +23,16 @@ export default function WishChat({ verifiedHuman, onWishParsed }: WishChatProps)
   const [activeTab, setActiveTab] = useState<'portfolio' | 'trending'>('trending');
   const [balanceWarning, setBalanceWarning] = useState<string | null>(null);
 
-  // Demo Portfolio Tokens (Simulated wallet holdings)
-  const portfolioTokens = [
-    { symbol: 'PEPE', balance: '10,000', icon: '🐸' },
-    { symbol: 'ETH', balance: '0.5', icon: '🔷' },
-  ];
-
-  // Dual-Tier Smart Preset Wish Chips
+  // Dual-Tier Smart Preset Wish Chips (Using ETH & Mock Tokens)
   const trendingChips = [
     {
       icon: <ShieldAlert size={14} color="var(--color-danger)" />,
-      label: '🛡️ Rug Pull Shield: PEPE TVL Drop 50%',
-      prompt: 'If PEPE/USDC pool TVL drops 50%, sell all my PEPE for USDC',
+      label: '🛡️ Shield ETH: Swap to USDC if TVL drops 50%',
+      prompt: 'If ETH/USDC pool TVL drops 50%, sell all my ETH for MockUSDC',
     },
     {
       icon: <TrendingUp size={14} color="var(--color-accent-primary)" />,
-      label: '📈 RWA Hedge: Buy NVDA Stock if ETH < $3000',
+      label: '📈 RWA Hedge: Buy Nvidia Stock (dNVDA) if ETH < $3000',
       prompt: 'If ETH dips below $3,000, buy tokenized Nvidia stock (dNVDA)',
     },
     {
@@ -51,12 +45,12 @@ export default function WishChat({ verifiedHuman, onWishParsed }: WishChatProps)
   const portfolioChips = [
     {
       icon: <ShieldAlert size={14} color="var(--color-danger)" />,
-      label: '🛡️ Shield 10,000 PEPE: Auto Sell on TVL Drop',
-      prompt: 'If PEPE pool TVL drops 50%, sell all 10000 PEPE for USDC',
+      label: '🛡️ Protect 0.5 ETH: Emergency Swap on Crash',
+      prompt: 'If ETH drops 30%, swap 0.1 ETH to MockUSDC for safety',
     },
     {
       icon: <TrendingUp size={14} color="var(--color-accent-primary)" />,
-      label: '📈 Hedge 0.5 ETH: Swap to NVDA Stock on Dip',
+      label: '📈 Hedge 0.1 ETH: Auto Buy dNVDA Stock on Dip',
       prompt: 'If ETH dips 10%, swap 0.1 ETH to tokenized Nvidia stock (dNVDA)',
     },
   ];
@@ -74,7 +68,7 @@ export default function WishChat({ verifiedHuman, onWishParsed }: WishChatProps)
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           prompt: targetPrompt,
-          userBalance: '100', // Simulated connected balance
+          userBalance: '0.5', // Simulated connected Sepolia ETH balance
         }),
       });
 
@@ -186,7 +180,7 @@ export default function WishChat({ verifiedHuman, onWishParsed }: WishChatProps)
           type="text"
           value={inputPrompt}
           onChange={(e) => setInputPrompt(e.target.value)}
-          placeholder={verifiedHuman ? "Type your wish... (e.g. Sell PEPE if TVL drops 50%)" : "Verify World ID to unlock AI Agent..."}
+          placeholder={verifiedHuman ? "Type your wish... (e.g. Buy Nvidia stock if ETH dips 10%)" : "Verify World ID to unlock AI Agent..."}
           disabled={!verifiedHuman || loading}
           style={{
             flex: 1,

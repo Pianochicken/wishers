@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import WorldIDGate, { VerifiedHuman } from './components/WorldIDGate';
 import WishChat, { ParsedWish } from './components/WishChat';
 import WishingWell from './components/WishingWell';
+import WishCard from './components/WishCard';
+import FlywheelHub from './components/FlywheelHub';
 
 export default function App() {
   const [backendStatus, setBackendStatus] = useState<string>('checking...');
   const [verifiedHuman, setVerifiedHuman] = useState<VerifiedHuman | null>(null);
   const [activeParsedWish, setActiveParsedWish] = useState<ParsedWish | null>(null);
   const [activeWishList, setActiveWishList] = useState<ParsedWish[]>([]);
+  const [totalFeesCollectedEth, setTotalFeesCollectedEth] = useState<number>(0.00015);
 
   useEffect(() => {
     fetch('/api/health')
@@ -15,6 +18,11 @@ export default function App() {
       .then((data) => setBackendStatus(data.status === 'ok' ? 'Online' : 'Error'))
       .catch(() => setBackendStatus('Backend Offline'));
   }, []);
+
+  const handleSwapExecuted = (result: any) => {
+    // Accumulate 0.1% fee
+    setTotalFeesCollectedEth((prev) => prev + 0.00005);
+  };
 
   return (
     <div style={{ maxWidth: '480px', margin: '0 auto', padding: '20px' }}>
@@ -47,6 +55,9 @@ export default function App() {
         />
       </div>
 
+      {/* Uniswap 0.1% Flywheel Hub */}
+      <FlywheelHub totalFeesCollectedEth={totalFeesCollectedEth} />
+
       {/* Natural Language Wish Chat */}
       <WishChat
         verifiedHuman={verifiedHuman}
@@ -63,15 +74,17 @@ export default function App() {
         }}
       />
 
-      {/* Active Wish List */}
+      {/* Active Wish Cards List with Instant Test Trigger */}
       {activeWishList.length > 0 && (
         <div style={{ marginTop: '24px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px' }}>Locked Active Wishes ({activeWishList.length})</h3>
-          {activeWishList.map((w, idx) => (
-            <div key={idx} className="glass-card" style={{ padding: '16px', marginBottom: '12px', borderLeft: '4px solid var(--color-accent-primary)' }}>
-              <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>{w.humanReadableSummary}</div>
-              <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>Status: Active Monitoring via The Graph</div>
-            </div>
+          <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px' }}>Active Wishes ({activeWishList.length})</h3>
+          {activeWishList.map((wish, idx) => (
+            <WishCard
+              key={idx}
+              wish={wish}
+              verifiedHuman={verifiedHuman}
+              onSwapExecuted={handleSwapExecuted}
+            />
           ))}
         </div>
       )}
