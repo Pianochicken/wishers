@@ -1,11 +1,20 @@
 import React, { useState } from 'react';
-import { ShieldCheck, UserCheck, Bot, CheckCircle2, RefreshCw } from 'lucide-react';
+import { ShieldCheck, UserCheck, Bot, CheckCircle2, RefreshCw, QrCode } from 'lucide-react';
+import { IDKitWidget, VerificationLevel } from '@worldcoin/idkit';
 
 export interface VerifiedHuman {
   nullifier: string;
   verificationLevel: string;
   agentWallet: string;
   executionRightsGranted: boolean;
+}
+
+export interface RpContext {
+  rp_id: string;
+  nonce: string;
+  created_at: number;
+  expires_at: number;
+  signature: string;
 }
 
 interface WorldIDGateProps {
@@ -16,29 +25,32 @@ interface WorldIDGateProps {
 export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGateProps) {
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<'simulator' | 'world_app'>('simulator');
+  const [rpContext, setRpContext] = useState<RpContext | null>(null);
 
-  const handleVerify = async () => {
+  const appId = import.meta.env.VITE_WORLD_APP_ID || 'app_staging_e4093952fef9bc655c65f9bf60032b9a';
+  const action = 'wishers-verify';
+
+  // Fast Simulator Verification for Demo / Testing
+  const handleFastSimulatorVerify = async () => {
     setLoading(true);
 
     try {
-      // Step 1: Fetch RP Signature from Backend
       const sigRes = await fetch('/api/auth/rp-signature', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
       const sigData = await sigRes.json();
 
-      // Step 2: Simulate or Execute Verification
       const verifyRes = await fetch('/api/auth/verify-proof', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           app_id: sigData.app_id,
           rp_id: sigData.rp_id,
-          isSimulator: mode === 'simulator',
+          isSimulator: true,
           idkitResponse: {
-            nullifier_hash: `0x${Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}...`,
-            verification_level: mode === 'simulator' ? 'staging_simulator' : 'orb',
+            nullifier_hash: `0x${Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
+            verification_level: 'orb',
           },
         }),
       });
@@ -47,6 +59,56 @@ export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGatePr
       onVerified(data);
     } catch (err) {
       console.error('Verification failed:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Prepare Signed RP Context for Official World ID Modal
+  const handleOpenIDKit = async (openWidget: () => void) => {
+    setLoading(true);
+    try {
+      const sigRes = await fetch('/api/auth/rp-signature', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const sigData = await sigRes.json();
+
+      setRpContext({
+        rp_id: sigData.rp_id,
+        nonce: sigData.nonce,
+        created_at: sigData.created_at,
+        expires_at: sigData.expires_at,
+        signature: sigData.sig,
+      });
+
+      setTimeout(() => {
+        openWidget();
+      }, 100);
+    } catch (err) {
+      console.error('Failed to get RP signature for World ID:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Real World App / Official IDKit Proof Handler
+  const handleIDKitSuccess = async (result: any) => {
+    setLoading(true);
+    try {
+      const verifyRes = await fetch('/api/auth/verify-proof', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          isSimulator: false,
+          idkitResponse: result,
+        }),
+      });
+
+      const data: VerifiedHuman = await verifyRes.json();
+      onVerified(data);
+    } catch (err) {
+      console.error('World ID Verification error:', err);
     } finally {
       setLoading(false);
     }
@@ -97,7 +159,7 @@ export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGatePr
         Prove you are a verified human to assign a dedicated AI Agent with delegated execution rights.
       </p>
 
-      {/* Simulator vs Live Switch */}
+      {/* Simulator vs Real World App Switch */}
       <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '16px' }}>
         <button
           onClick={() => setMode('simulator')}
@@ -112,7 +174,7 @@ export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGatePr
             cursor: 'pointer',
           }}
         >
-          Staging Simulator
+          ⚡ Fast Demo Simulator
         </button>
         <button
           onClick={() => setMode('world_app')}
@@ -127,14 +189,36 @@ export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGatePr
             cursor: 'pointer',
           }}
         >
-          Live World App
+          📱 Official World App QR
         </button>
       </div>
 
-      <button className="btn-primary" onClick={handleVerify} disabled={loading} style={{ width: '100%', justifyContent: 'center' }}>
-        {loading ? <RefreshCw className="animate-spin" size={18} /> : <ShieldCheck size={18} />}
-        <span>{loading ? 'Verifying Proof...' : 'Verify with World ID & Grant Execution Rights'}</span>
-      </button>
+      {mode === 'simulator' ? (
+        <button className="btn-primary" onClick={handleFastSimulatorVerify} disabled={loading} style={{ width: '100%', justifyContent: 'center' }}>
+          {loading ? <RefreshCw className="animate-spin" size={18} /> : <ShieldCheck size={18} />}
+          <span>{loading ? 'Verifying Proof...' : 'Verify with World ID (Demo Mode)'}</span>
+        </button>
+      ) : (
+        <IDKitWidget
+          app_id={appId as `app_${string}`}
+          action={action}
+          onSuccess={handleIDKitSuccess}
+          handleVerify={handleIDKitSuccess}
+          verification_levels={[VerificationLevel.Orb, VerificationLevel.Device]}
+        >
+          {({ open }: { open: () => void }) => (
+            <button
+              className="btn-primary"
+              onClick={() => handleOpenIDKit(open)}
+              disabled={loading}
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              {loading ? <RefreshCw className="animate-spin" size={18} /> : <QrCode size={18} />}
+              <span>{loading ? 'Signing RP Context...' : 'Scan QR with World App / Simulator'}</span>
+            </button>
+          )}
+        </IDKitWidget>
+      )}
     </div>
   );
 }

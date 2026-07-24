@@ -118,3 +118,59 @@ body {
   border-color: var(--color-danger) !important;
   animation: alert-ripple 1.5s infinite;
 }
+
+/* 3D Coin Tossing Parabolic Arc Animation */
+@keyframes coin-toss-arc {
+  0% {
+    transform: translateY(0) scale(1) rotateY(0deg);
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.8));
+  }
+  50% {
+    transform: translateY(-110px) scale(1.4) rotateY(540deg);
+    opacity: 1;
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 1));
+  }
+  100% {
+    transform: translateY(40px) scale(0.2) rotateY(1080deg);
+    opacity: 0;
+    filter: drop-shadow(0 0 30px rgba(56, 189, 248, 1));
+  }
+}
+
+.coin-tossing-active {
+  animation: coin-toss-arc 1.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Cyberpunk Water Ripple Expansion Animation */
+@keyframes well-water-ripple {
+  0% {
+    transform: scale(0.3);
+    opacity: 1;
+    border-color: var(--color-accent-primary);
+  }
+  50% {
+    opacity: 0.8;
+    border-color: #E0E7FF;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+    border-color: var(--color-accent-primary);
+  }
+}
+
+.well-ripple-active {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  margin-top: -60px;
+  margin-left: -60px;
+  border-radius: 50%;
+  border: 2px solid var(--color-accent-primary);
+  animation: well-water-ripple 1.2s ease-out infinite;
+  pointer-events: none;
+}
+

@@ -1,10 +1,17 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import authRouter from './routes/auth';
 import aiRouter from './routes/ai';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load root .env file
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config(); // fallback to current dir
 
 const app = express();
 const PORT = process.env.PORT || 3001;

@@ -3,9 +3,9 @@ import crypto from 'crypto';
 
 const router = express.Router();
 
-const APP_ID = process.env.WORLD_APP_ID || 'app_staging_wishers_ethglobal';
+const APP_ID = process.env.VITE_WORLD_APP_ID || process.env.WORLD_APP_ID || 'app_staging_wishers_ethglobal';
 const RP_ID = process.env.WORLD_RP_ID || 'rp_wishers_ethglobal';
-const SIGNING_KEY = process.env.WORLD_SIGNING_KEY || 'sk_staging_dummy_key';
+const SIGNING_KEY = process.env.RP_SIGNING_KEY || process.env.WORLD_SIGNING_KEY || 'sk_staging_dummy_key';
 
 /**
  * POST /api/auth/rp-signature

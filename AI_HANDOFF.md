@@ -8,9 +8,9 @@
 # AI Session Handoff & Progress Log (WISHERS)
 
 ## 📌 Current Focus & Phase
-- **Active Phase**: Phase 3 Complete ➔ Moving to Phase 4 (Uniswap Trading API v1 & Live Flywheel Hub)
+- **Active Phase**: Phase 3 Complete & Verified via Production World App ➔ Moving to Phase 4 (Uniswap Trading API v1 & Live Flywheel Hub)
 - **Branch**: `develop`
-- **Build Status**: `npm run typecheck` Passed (0 errors) | `npm run build` Passed (All 3 Workspaces: frontend, backend, packages)
+- **Build Status**: `npm run typecheck` Passed (0 errors) | `npm run build` Passed (All 3 Workspaces)
 
 ---
 
@@ -22,7 +22,9 @@
 1. ✅ **Git Infrastructure**: Initialized Git repository, `.gitignore`, and set up `develop` branch tracking `origin/develop`.
 2. ✅ **npm Workspaces Monorepo Architecture**: Clean separation into `frontend/`, `backend/`, and `packages/wishers-mcp-server-thegraph/`.
 3. ✅ **Phase 1 Setup Scaffold**: Vite React + Express API with `/api/health` and Palette C UI tokens (`#E0E7FF`, `#38BDF8`).
-4. ✅ **Phase 2 World ID Gate**: `backend/routes/auth.ts` & `frontend/src/components/WorldIDGate.tsx` displaying verified Nullifier and active Agent Wallet.
+4. ✅ **Phase 2 & 3 World ID Gate (Production Verified 🎉)**:
+   - `backend/routes/auth.ts`: Backend `/api/auth/rp-signature` HMAC-SHA256 signing with `RP_SIGNING_KEY` preventing replay attacks.
+   - `frontend/src/components/WorldIDGate.tsx`: Official World App QR Scanner + Staging Simulator switch. Tested & verified live on physical phone via World App!
 5. ✅ **Phase 3 Cyberpunk Wishing Well UX & 3-Layer AI Engine**:
    - `backend/routes/ai.ts`: `/api/ai/parse-wish` with 3-Layer Security Sandbox & Balance Guard.
    - `frontend/src/components/WishChat.tsx`: Dual-Tier Smart Wish Chips Wall (`👛 Portfolio-Aware` + `🔥 Market Trends`).
