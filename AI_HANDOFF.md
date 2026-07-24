@@ -21,7 +21,7 @@
 ## 🎯 Completed Milestones
 1. ✅ **Git Infrastructure**: Initialized Git repository, `.gitignore`, and set up `develop` branch tracking `origin/develop`.
 2. ✅ **npm Workspaces Monorepo Architecture**: Clean separation into `frontend/`, `backend/`, and `packages/wishers-mcp-server-thegraph/`.
-3. ✅ **Phase 1 Setup Scaffold**: Vite React + Express API with `/api/health` and Palette C UI tokens (`#E0E7FF`, `#38BDF8`).
+3. ✅ **Branding & Assets**: Standardized brand identity to `/logo.png` across `frontend/index.html` (favicon) and `frontend/src/App.tsx` (glowing header icon).
 4. ✅ **Phase 2 World ID Gate (Verified 🎉)**: `backend/routes/auth.ts` & `frontend/src/components/WorldIDGate.tsx` tested & verified live on physical phone via World App!
 5. ✅ **Phase 3 Cyberpunk Wishing Well UX & 3-Layer AI Engine**: `backend/routes/ai.ts`, `<WishChat.tsx />`, `<WishingWell.tsx />` with 3D coin tossing & water ripple animations.
 6. ✅ **Phase 4 Uniswap Trading API v1, RWA Stocks & Live Flywheel Hub**:

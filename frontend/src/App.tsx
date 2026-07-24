@@ -29,7 +29,7 @@ export default function App() {
       {/* Header Bar */}
       <header className="glass-card" style={{ padding: '16px 20px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src="/wishers_logo_final.png" alt="WISHERS Logo" style={{ width: '36px', height: '36px', borderRadius: '8px' }} />
+          <img src="/logo.png" alt="WISHERS Logo" style={{ width: '38px', height: '38px', borderRadius: '10px', objectFit: 'cover', boxShadow: '0 0 12px rgba(56, 189, 248, 0.3)' }} />
           <div>
             <h1 style={{ fontSize: '18px', fontWeight: '700', letterSpacing: '-0.5px', background: 'var(--color-accent-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               WISHERS
