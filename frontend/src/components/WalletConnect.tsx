@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wallet, RefreshCw } from 'lucide-react';
+import { Wallet, RefreshCw, AlertTriangle } from 'lucide-react';
 
 interface WalletConnectProps {
   onWalletConnected: (address: string | null) => void;
@@ -13,20 +13,26 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
   const [isCorrectNetwork, setIsCorrectNetwork] = useState<boolean>(true);
   const [connecting, setConnecting] = useState<boolean>(false);
 
-  // 100% Silent Initialization: NO automatic window.ethereum requests on page reload!
+  // 100% Zero-Request Page Load: NO window.ethereum requests on mount/reload!
   useEffect(() => {
-    // Only register event listeners for manual user changes
     if (typeof window !== 'undefined' && window.ethereum) {
       const handleAccountsChanged = (accounts: string[]) => {
-        if (accounts.length === 0) {
+        if (!accounts || accounts.length === 0) {
           disconnectWalletStateOnly();
         } else if (userAddress) {
-          silentAccountSetup(accounts[0]);
+          silentAccountCheck(accounts[0]);
         }
       };
 
-      const handleChainChanged = () => {
-        window.location.reload();
+      const handleChainChanged = (newChainIdHex: string) => {
+        const onBase = newChainIdHex === BASE_SEPOLIA_CHAIN_ID_HEX;
+        setIsCorrectNetwork(onBase);
+        if (onBase && userAddress) {
+          fetchBalance(userAddress);
+          onWalletConnected(userAddress);
+        } else {
+          onWalletConnected(null);
+        }
       };
 
       window.ethereum.on?.('accountsChanged', handleAccountsChanged);
@@ -39,35 +45,48 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
     }
   }, [userAddress]);
 
-  const silentAccountSetup = async (address: string) => {
+  const silentAccountCheck = async (address: string) => {
     try {
       const chainIdHex = await window.ethereum.request({ method: 'eth_chainId' });
       const onBase = chainIdHex === BASE_SEPOLIA_CHAIN_ID_HEX;
       setIsCorrectNetwork(onBase);
+      setUserAddress(address);
 
       if (onBase) {
-        setUserAddress(address);
         onWalletConnected(address);
-
-        const balanceHex = await window.ethereum.request({
-          method: 'eth_getBalance',
-          params: [address, 'latest'],
-        });
-        const balanceEth = (parseInt(balanceHex, 16) / 1e18).toFixed(4);
-        setEthBalance(balanceEth);
+        await fetchBalance(address);
+      } else {
+        onWalletConnected(null);
       }
     } catch (err) {
-      console.error('Silent account setup error:', err);
+      console.error('Silent account check error:', err);
     }
   };
 
-  const ensureBaseSepoliaNetwork = async () => {
+  const fetchBalance = async (address: string) => {
+    try {
+      const balanceHex = await window.ethereum.request({
+        method: 'eth_getBalance',
+        params: [address, 'latest'],
+      });
+      const balanceEth = (parseInt(balanceHex, 16) / 1e18).toFixed(4);
+      setEthBalance(balanceEth);
+    } catch (err) {
+      console.error('Error fetching balance:', err);
+    }
+  };
+
+  const ensureBaseSepoliaNetwork = async (): Promise<boolean> => {
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: BASE_SEPOLIA_CHAIN_ID_HEX }],
       });
       setIsCorrectNetwork(true);
+      if (userAddress) {
+        onWalletConnected(userAddress);
+        await fetchBalance(userAddress);
+      }
       return true;
     } catch (switchError: any) {
       // Error 4902 indicates that the chain has not been added to MetaMask
@@ -86,6 +105,10 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
             ],
           });
           setIsCorrectNetwork(true);
+          if (userAddress) {
+            onWalletConnected(userAddress);
+            await fetchBalance(userAddress);
+          }
           return true;
         } catch (addError) {
           console.error('Failed to add Base Sepolia network:', addError);
@@ -104,21 +127,27 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
 
     setConnecting(true);
     try {
-      // Explicit User Click: Prompt eth_requestAccounts
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      if (accounts.length > 0) {
-        const switched = await ensureBaseSepoliaNetwork();
-        if (switched) {
-          setUserAddress(accounts[0]);
-          onWalletConnected(accounts[0]);
+      // 1. Force network switch to Base Sepolia first
+      await ensureBaseSepoliaNetwork();
 
-          const balanceHex = await window.ethereum.request({
-            method: 'eth_getBalance',
-            params: [accounts[0], 'latest'],
-          });
-          const balanceEth = (parseInt(balanceHex, 16) / 1e18).toFixed(4);
-          setEthBalance(balanceEth);
-        }
+      // 2. Request scoped permission via wallet_requestPermissions for Picture 1 targeted UI
+      try {
+        await window.ethereum.request({
+          method: 'wallet_requestPermissions',
+          params: [{ eth_accounts: {} }],
+        });
+      } catch (permErr) {
+        console.warn('Permission prompt interaction:', permErr);
+      }
+
+      // 3. Retrieve granted accounts
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      if (accounts && accounts.length > 0) {
+        const address = accounts[0];
+        setUserAddress(address);
+        setIsCorrectNetwork(true);
+        onWalletConnected(address);
+        await fetchBalance(address);
       }
     } catch (err) {
       console.error('User rejected wallet connection or network switch:', err);
@@ -150,75 +179,98 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
   };
 
   return (
-    <div className="glass-card" style={{ padding: '14px 18px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(56, 189, 248, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
-          <Wallet size={16} color="var(--color-accent-primary)" />
+    <div className="glass-card" style={{ padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+      {/* Left Details */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1 }}>
+        <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(56, 189, 248, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(56, 189, 248, 0.3)', flexShrink: 0 }}>
+          <Wallet size={18} color="var(--color-accent-primary)" />
         </div>
-        <div>
-          <div style={{ fontSize: '12px', fontWeight: '700', color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span>{userAddress ? `${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}` : 'Wallet'}</span>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-text-primary)', whiteSpace: 'nowrap' }}>
+              {userAddress ? `${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}` : 'Wallet'}
+            </span>
             {userAddress && (
-              <span style={{ fontSize: '9px', padding: '1px 6px', borderRadius: '10px', background: isCorrectNetwork ? 'rgba(0, 214, 143, 0.15)' : 'rgba(239, 68, 68, 0.2)', color: isCorrectNetwork ? 'var(--color-success)' : '#EF4444', fontWeight: '700' }}>
+              <span
+                style={{
+                  fontSize: '9px',
+                  padding: '2px 8px',
+                  borderRadius: '10px',
+                  background: isCorrectNetwork ? 'rgba(0, 214, 143, 0.15)' : 'rgba(239, 68, 68, 0.2)',
+                  color: isCorrectNetwork ? 'var(--color-success)' : '#EF4444',
+                  border: isCorrectNetwork ? '1px solid rgba(0, 214, 143, 0.3)' : '1px solid rgba(239, 68, 68, 0.4)',
+                  fontWeight: '700',
+                  whiteSpace: 'nowrap',
+                }}
+              >
                 {isCorrectNetwork ? 'Base Sepolia' : 'Wrong Network'}
               </span>
             )}
           </div>
-          <div style={{ fontSize: '10px', color: 'var(--color-text-secondary)' }}>
+          <div style={{ fontSize: '11px', color: isCorrectNetwork ? 'var(--color-text-secondary)' : '#EF4444', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {userAddress
               ? isCorrectNetwork
                 ? `${ethBalance || '0.0000'} Base Sepolia ETH`
-                : 'Please switch network to Base Sepolia'
-              : 'Connect Wallet'}
+                : ''
+              : 'Connect Wallet (Base Sepolia Testnet)'}
           </div>
         </div>
       </div>
 
-      {userAddress ? (
-        <div style={{ display: 'flex', gap: '6px' }}>
-          {!isCorrectNetwork && (
+      {/* Right Actions */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+        {userAddress ? (
+          <>
+            {!isCorrectNetwork && (
+              <button
+                onClick={ensureBaseSepoliaNetwork}
+                style={{
+                  fontSize: '11px',
+                  padding: '6px 12px',
+                  borderRadius: '8px',
+                  background: 'rgba(239, 68, 68, 0.2)',
+                  border: '1px solid rgba(239, 68, 68, 0.5)',
+                  color: '#EF4444',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <AlertTriangle size={13} />
+                <span>Switch to Base</span>
+              </button>
+            )}
             <button
-              onClick={ensureBaseSepoliaNetwork}
+              onClick={disconnectWallet}
               style={{
                 fontSize: '11px',
-                padding: '5px 10px',
+                padding: '6px 12px',
                 borderRadius: '8px',
-                background: 'rgba(239, 68, 68, 0.2)',
-                border: '1px solid rgba(239, 68, 68, 0.4)',
-                color: '#EF4444',
-                fontWeight: '700',
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text-tertiary)',
                 cursor: 'pointer',
+                whiteSpace: 'nowrap',
               }}
             >
-              Switch to Base
+              Disconnect
             </button>
-          )}
+          </>
+        ) : (
           <button
-            onClick={disconnectWallet}
-            style={{
-              fontSize: '11px',
-              padding: '5px 10px',
-              borderRadius: '8px',
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid var(--color-border)',
-              color: 'var(--color-text-tertiary)',
-              cursor: 'pointer',
-            }}
+            onClick={connectWallet}
+            className="btn-primary"
+            disabled={connecting}
+            style={{ fontSize: '11px', padding: '6px 14px', borderRadius: '8px', whiteSpace: 'nowrap' }}
           >
-            Disconnect
+            {connecting ? <RefreshCw className="animate-spin" size={14} /> : <Wallet size={14} />}
+            <span>{connecting ? 'Connecting...' : 'Connect Wallet'}</span>
           </button>
-        </div>
-      ) : (
-        <button
-          onClick={connectWallet}
-          className="btn-primary"
-          disabled={connecting}
-          style={{ fontSize: '11px', padding: '6px 12px', borderRadius: '8px' }}
-        >
-          {connecting ? <RefreshCw className="animate-spin" size={14} /> : <Wallet size={14} />}
-          <span>{connecting ? 'Connecting...' : 'Connect Wallet'}</span>
-        </button>
-      )}
+        )}
+      </div>
     </div>
   );
 }
