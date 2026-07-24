@@ -1,9 +1,8 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import crypto from 'crypto';
 
 const router = express.Router();
 
-// Dev / Staging credentials with environment fallback
 const APP_ID = process.env.WORLD_APP_ID || 'app_staging_wishers_ethglobal';
 const RP_ID = process.env.WORLD_RP_ID || 'rp_wishers_ethglobal';
 const SIGNING_KEY = process.env.WORLD_SIGNING_KEY || 'sk_staging_dummy_key';
@@ -12,13 +11,12 @@ const SIGNING_KEY = process.env.WORLD_SIGNING_KEY || 'sk_staging_dummy_key';
  * POST /api/auth/rp-signature
  * Generates signed RP context for IDKit Request Widget
  */
-router.post('/rp-signature', (req, res) => {
+router.post('/rp-signature', (req: Request, res: Response) => {
   try {
     const nonce = crypto.randomBytes(16).toString('hex');
     const createdAt = Math.floor(Date.now() / 1000);
-    const expiresAt = createdAt + 3600; // 1 hour validity
+    const expiresAt = createdAt + 3600;
 
-    // Generate HMAC-SHA256 signature
     const payload = `${RP_ID}:${nonce}:${createdAt}:${expiresAt}`;
     const sig = crypto.createHmac('sha256', SIGNING_KEY).update(payload).digest('hex');
 
@@ -40,16 +38,13 @@ router.post('/rp-signature', (req, res) => {
  * POST /api/auth/verify-proof
  * Verifies ZK Proof and registers Agent in AgentBook (Human-Backed Delegation)
  */
-router.post('/verify-proof', async (req, res) => {
+router.post('/verify-proof', async (req: Request, res: Response) => {
   try {
     const { idkitResponse, isSimulator } = req.body;
 
-    // Extract Nullifier from IDKit or Staging Simulator
     const nullifierHash = idkitResponse?.nullifier_hash || `0x_simulated_nullifier_${Date.now()}`;
     const proofLevel = idkitResponse?.verification_level || (isSimulator ? 'staging_simulator' : 'orb');
 
-    // Simulate AgentBook on-chain registration (@worldcoin/agentkit)
-    // Binds Nullifier -> Agent Delegate Wallet
     const agentWallet = `0xAgent_${crypto.createHash('md5').update(nullifierHash).digest('hex').substring(0, 10)}`;
 
     console.log(`✅ [World ID Verified] Human Nullifier: ${nullifierHash} | Level: ${proofLevel}`);

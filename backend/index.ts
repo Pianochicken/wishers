@@ -1,8 +1,8 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import authRouter from './routes/auth.js';
-import aiRouter from './routes/ai.js';
+import authRouter from './routes/auth';
+import aiRouter from './routes/ai';
 
 dotenv.config();
 
@@ -18,7 +18,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/ai', aiRouter);
 
 // Healthcheck Route
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (req: Request, res: Response) => {
   res.json({
     status: 'ok',
     app: 'WISHERS API',

@@ -4,8 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node --watch index.js"
+    "start": "npx tsx index.ts",
+    "dev": "npx tsx watch index.ts",
+    "build": "tsc --noEmit"
   },
   "dependencies": {
     "cors": "^2.8.5",

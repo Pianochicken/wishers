@@ -12,7 +12,7 @@
     "dev": "concurrently -k \"npm:dev:backend\" \"npm:dev:frontend\"",
     "dev:frontend": "npm run dev --workspace=frontend",
     "dev:backend": "npm run start --workspace=backend",
-    "build": "npm run build --workspace=frontend",
+    "build": "npm run build --workspaces --if-present",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

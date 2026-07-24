@@ -1,10 +1,10 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { z } from 'zod';
 
 const router = express.Router();
 
 // Layer 3: Zod Schema for Strict Server-Side Validation
-const wishIntentZodSchema = z.object({
+export const wishIntentZodSchema = z.object({
   conditionType: z.enum(['TVL_DROP', 'PRICE_DROP', 'PRICE_SPIKE', 'DEPEG']),
   targetTokenSymbol: z.string().min(1).max(10),
   thresholdValue: z.number().positive(),
@@ -21,7 +21,7 @@ export type WishIntent = z.infer<typeof wishIntentZodSchema>;
  * Parses natural language wish input into a structured Zod-validated Wish Object.
  * Includes 3-Layer Prompt Injection Security Sandbox.
  */
-router.post('/parse-wish', async (req, res) => {
+router.post('/parse-wish', async (req: Request, res: Response) => {
   try {
     const { prompt, userBalance } = req.body;
 
