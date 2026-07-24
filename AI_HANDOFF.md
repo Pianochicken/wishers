@@ -8,7 +8,7 @@
 # AI Session Handoff & Progress Log (WISHERS)
 
 ## 📌 Current Focus & Phase
-- **Active Phase**: Phase 4 Complete ➔ Moving to Phase 5 (The Graph TVL Monitoring, Dev Trigger Switch & Monorepo MCP)
+- **Active Phase**: Phase 5 in Progress (Sub-Step 5.1 & 5.2 Complete: The Graph TVL Monitoring Service & Dev Trigger Switch)
 - **Branch**: `develop`
 - **Build Status**: `npm run typecheck` Passed (0 errors) | `npm run build` Passed (All 3 Workspaces)
 
@@ -21,21 +21,18 @@
 ## 🎯 Completed Milestones
 1. ✅ **Git Infrastructure**: Initialized Git repository, `.gitignore`, and set up `develop` branch tracking `origin/develop`.
 2. ✅ **npm Workspaces Monorepo Architecture**: Clean separation into `frontend/`, `backend/`, and `packages/wishers-mcp-server-thegraph/`.
-3. ✅ **Branding & Assets**: Standardized brand identity to `/logo.png` across `frontend/index.html` (favicon) and `frontend/src/App.tsx` (glowing header icon).
-4. ✅ **Phase 2 World ID Gate (Verified 🎉)**: `backend/routes/auth.ts` & `frontend/src/components/WorldIDGate.tsx` tested & verified live on physical phone via World App!
+3. ✅ **Phase 1 Setup Scaffold**: Vite React + Express API with `/api/health` and Palette C UI tokens (`#E0E7FF`, `#38BDF8`).
+4. ✅ **Phase 2 World ID Gate (Verified 🎉)**: Verified live on physical phone via World App!
 5. ✅ **Phase 3 Cyberpunk Wishing Well UX & 3-Layer AI Engine**: `backend/routes/ai.ts`, `<WishChat.tsx />`, `<WishingWell.tsx />` with 3D coin tossing & water ripple animations.
-6. ✅ **Phase 4 Uniswap Trading API v1, RWA Stocks & Live Flywheel Hub**:
-   - `backend/routes/uniswap.ts`: `/api/uniswap/quote` & `/api/uniswap/swap` with Native ETH & Mock Tokens (`MockUSDC`, `dNVDA`).
-   - `frontend/src/components/WishCard.tsx`: **Instant ⚡ Test Trigger Swap Now Button** displaying real tx hash and BaseScan receipt.
-   - `frontend/src/components/FlywheelHub.tsx`: Live transparent 0.1% fee counter and 3-way Sponsor Flywheel split dashboard.
-   - `FEEDBACK.md`: Mandatory feedback report for Uniswap Bounty qualification.
+6. ✅ **Phase 4 Uniswap Trading API v1, RWA Stocks & Live Flywheel Hub**: `backend/routes/uniswap.ts`, `<WishCard.tsx />`, `<FlywheelHub.tsx />`, and `FEEDBACK.md`.
+7. ✅ **Sub-Step 5.1 & 5.2 The Graph TVL Monitor & Dev Trigger Switch**:
+   - `backend/services/monitor.ts`: Real-time TVL monitoring loop querying The Graph Uniswap V3 Subgraph, calculating 5-minute TVL delta (`tvlDelta5mPercent`), and outputting `CRITICAL_RUG_PULL_DETECTED` risk intelligence.
+   - `backend/routes/debug.ts`: Dev/Demo TVL Crash Trigger Switch (`/api/debug/simulate-tvl-drop`) for 100% reliable video demo recording.
 
 ---
 
-## 🚀 Next Steps (Phase 5: The Graph TVL Monitoring & Monorepo MCP Server)
-1. **Task 5.1**: Implement `backend/services/monitor.ts` for Uniswap V3 Subgraph batch TVL polling.
-2. **Task 5.2**: Implement Dev/Demo TVL Crash Trigger Switch (`backend/routes/debug.ts` `/api/debug/simulate-tvl-drop`).
-3. **Task 5.3**: Build **`packages/wishers-mcp-server-thegraph`** (Standalone MCP Server exposing `query_pool_risk_intelligence` tool).
+## 🚀 Next Steps (Phase 5 Continued: Standalone Monorepo MCP Server)
+1. **Sub-Step 5.3**: Build **`packages/wishers-mcp-server-thegraph`** (Standalone Open-Source MCP Server exposing `query_pool_risk_intelligence` tool for Claude & Cursor).
 
 ## 📂 Architecture Reference
 - **Frontend**: React + Vite (Vanilla CSS / Tailwind)
