@@ -11,6 +11,7 @@ export default function App() {
   const [activeParsedWish, setActiveParsedWish] = useState<ParsedWish | null>(null);
   const [activeWishList, setActiveWishList] = useState<ParsedWish[]>([]);
   const [totalFeesCollectedEth, setTotalFeesCollectedEth] = useState<number>(0.00015);
+  const [isSimulatedCrashActive, setIsSimulatedCrashActive] = useState<boolean>(false);
 
   useEffect(() => {
     fetch('/api/health')
@@ -18,6 +19,22 @@ export default function App() {
       .then((data) => setBackendStatus(data.status === 'ok' ? 'Online' : 'Error'))
       .catch(() => setBackendStatus('Backend Offline'));
   }, []);
+
+  const handleToggleSimulatedCrash = async () => {
+    try {
+      const res = await fetch('/api/debug/simulate-tvl-drop', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active: !isSimulatedCrashActive }),
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        setIsSimulatedCrashActive(data.simulatedCrashActive);
+      }
+    } catch (err) {
+      console.error('Error toggling TVL crash simulation:', err);
+    }
+  };
 
   const handleSwapExecuted = (result: any) => {
     // Accumulate 0.1% fee
@@ -74,7 +91,7 @@ export default function App() {
         }}
       />
 
-      {/* Active Wish Cards List with Instant Test Trigger */}
+      {/* Active Wish Cards List with Rug Pull Shield Alerts */}
       {activeWishList.length > 0 && (
         <div style={{ marginTop: '24px' }}>
           <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px' }}>Active Wishes ({activeWishList.length})</h3>
@@ -84,6 +101,8 @@ export default function App() {
               wish={wish}
               verifiedHuman={verifiedHuman}
               onSwapExecuted={handleSwapExecuted}
+              isSimulatedCrashActive={isSimulatedCrashActive}
+              onToggleSimulatedCrash={handleToggleSimulatedCrash}
             />
           ))}
         </div>

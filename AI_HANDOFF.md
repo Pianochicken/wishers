@@ -25,14 +25,16 @@
 4. ✅ **Phase 2 World ID Gate (Verified 🎉)**: Verified live on physical phone via World App!
 5. ✅ **Phase 3 Cyberpunk Wishing Well UX & 3-Layer AI Engine**: `backend/routes/ai.ts`, `<WishChat.tsx />`, `<WishingWell.tsx />` with 3D coin tossing & water ripple animations.
 6. ✅ **Phase 4 Uniswap Trading API v1, RWA Stocks & Live Flywheel Hub**: `backend/routes/uniswap.ts`, `<WishCard.tsx />`, `<FlywheelHub.tsx />`, and `FEEDBACK.md`.
-7. ✅ **Sub-Step 5.1 & 5.2 The Graph TVL Monitor & Dev Trigger Switch**:
-   - `backend/services/monitor.ts`: Real-time TVL monitoring loop querying The Graph Uniswap V3 Subgraph, calculating 5-minute TVL delta (`tvlDelta5mPercent`), and outputting `CRITICAL_RUG_PULL_DETECTED` risk intelligence.
-   - `backend/routes/debug.ts`: Dev/Demo TVL Crash Trigger Switch (`/api/debug/simulate-tvl-drop`) for 100% reliable video demo recording.
+7. ✅ **Phase 5 (Part 1 & 2) The Graph TVL Monitor & Rug Pull Shield UI**:
+   - `backend/services/monitor.ts` & `backend/routes/debug.ts`: The Graph Subgraph TVL monitoring loop & `/api/debug/simulate-tvl-drop` switch.
+   - `frontend/src/components/WishCard.tsx`: Dynamic **Rug Pull Shield Red Pulsing Alert UI Card** (`🚨 CRITICAL RUG PULL DETECTED (-65%)`) with automatic Agent emergency protection trigger!
 
 ---
 
-## 🚀 Next Steps (Phase 5 Continued: Standalone Monorepo MCP Server)
-1. **Sub-Step 5.3**: Build **`packages/wishers-mcp-server-thegraph`** (Standalone Open-Source MCP Server exposing `query_pool_risk_intelligence` tool for Claude & Cursor).
+## 🚀 Next Steps (Updated Phase Roadmap)
+1. **User Custom Adjustments & Polish**: Address all user preferences and UI/UX fine-tuning.
+2. **Phase 6 (Monorepo MCP Server)**: Standalone Open-Source MCP Server in `packages/wishers-mcp-server-thegraph`.
+3. **Phase 7 (Final Submission Package)**: `README.md`, `AI_ATTRIBUTION.md`, and end-to-end verification.
 
 ## 📂 Architecture Reference
 - **Frontend**: React + Vite (Vanilla CSS / Tailwind)
