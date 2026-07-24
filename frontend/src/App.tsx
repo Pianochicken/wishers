@@ -43,6 +43,9 @@ export default function App() {
     setTotalFeesCollectedEth((prev) => prev + 0.00005);
   };
 
+  // Step 1 Onboarding Guard: Is the user fully authenticated with both Web3 Wallet & World ID?
+  const isStep1Complete = Boolean(connectedWalletAddress && verifiedHuman);
+
   return (
     <div style={{ maxWidth: '480px', margin: '0 auto', padding: '20px' }}>
       {/* Header Bar */}
@@ -66,10 +69,10 @@ export default function App() {
         </div>
       </header>
 
-      {/* Web3 Wallet Connection Component */}
+      {/* Step 1: Web3 Wallet Connection Component */}
       <WalletConnect onWalletConnected={(addr) => setConnectedWalletAddress(addr)} />
 
-      {/* World ID Gate */}
+      {/* Step 1: World ID Verification Gate */}
       <div style={{ marginBottom: '24px' }}>
         <WorldIDGate
           verifiedHuman={verifiedHuman}
@@ -77,40 +80,52 @@ export default function App() {
         />
       </div>
 
-      {/* Uniswap 0.1% Flywheel Hub */}
-      <FlywheelHub totalFeesCollectedEth={totalFeesCollectedEth} />
+      {/* Progressive Unlocking Guard: Only render downstream app cards after Step 1 is complete! */}
+      {isStep1Complete ? (
+        <>
+          {/* Uniswap 0.1% Flywheel Hub */}
+          <FlywheelHub totalFeesCollectedEth={totalFeesCollectedEth} />
 
-      {/* Natural Language Wish Chat */}
-      <WishChat
-        verifiedHuman={verifiedHuman}
-        onWishParsed={(wish) => setActiveParsedWish(wish)}
-      />
+          {/* Natural Language Wish Chat */}
+          <WishChat
+            verifiedHuman={verifiedHuman}
+            onWishParsed={(wish) => setActiveParsedWish(wish)}
+          />
 
-      {/* Confirmation & Coin Tossing Modal */}
-      <WishingWell
-        parsedWish={activeParsedWish}
-        onCancel={() => setActiveParsedWish(null)}
-        onConfirmWish={(confirmedWish) => {
-          setActiveWishList([confirmedWish, ...activeWishList]);
-          setActiveParsedWish(null);
-        }}
-      />
+          {/* Confirmation & Coin Tossing Modal */}
+          <WishingWell
+            parsedWish={activeParsedWish}
+            onCancel={() => setActiveParsedWish(null)}
+            onConfirmWish={(confirmedWish) => {
+              setActiveWishList([confirmedWish, ...activeWishList]);
+              setActiveParsedWish(null);
+            }}
+          />
 
-      {/* Active Wish Cards List with Real Web3 Wallet & Rug Pull Shield */}
-      {activeWishList.length > 0 && (
-        <div style={{ marginTop: '24px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px' }}>Active Wishes ({activeWishList.length})</h3>
-          {activeWishList.map((wish, idx) => (
-            <WishCard
-              key={idx}
-              wish={wish}
-              verifiedHuman={verifiedHuman}
-              connectedWalletAddress={connectedWalletAddress}
-              onSwapExecuted={handleSwapExecuted}
-              isSimulatedCrashActive={isSimulatedCrashActive}
-              onToggleSimulatedCrash={handleToggleSimulatedCrash}
-            />
-          ))}
+          {/* Active Wish Cards List with Real Web3 Wallet & Rug Pull Shield */}
+          {activeWishList.length > 0 && (
+            <div style={{ marginTop: '24px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px' }}>Active Wishes ({activeWishList.length})</h3>
+              {activeWishList.map((wish, idx) => (
+                <WishCard
+                  key={idx}
+                  wish={wish}
+                  verifiedHuman={verifiedHuman}
+                  connectedWalletAddress={connectedWalletAddress}
+                  onSwapExecuted={handleSwapExecuted}
+                  isSimulatedCrashActive={isSimulatedCrashActive}
+                  onToggleSimulatedCrash={handleToggleSimulatedCrash}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        /* Locked Onboarding Notice Banner */
+        <div className="glass-card" style={{ padding: '24px', textAlign: 'center', background: 'rgba(255, 255, 255, 0.02)', border: '1px dashed var(--color-border)', color: 'var(--color-text-secondary)' }}>
+          <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '6px', color: 'var(--color-text-primary)' }}>
+            🔒 Complete Wallet Connection & World ID Verification to Unlock WISHERS Agent
+          </div>
         </div>
       )}
     </div>
