@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import WorldIDGate, { VerifiedHuman } from './components/WorldIDGate';
+import WishChat, { ParsedWish } from './components/WishChat';
+import WishingWell from './components/WishingWell';
 
 export default function App() {
   const [backendStatus, setBackendStatus] = useState<string>('checking...');
   const [verifiedHuman, setVerifiedHuman] = useState<VerifiedHuman | null>(null);
+  const [activeParsedWish, setActiveParsedWish] = useState<ParsedWish | null>(null);
+  const [activeWishList, setActiveWishList] = useState<ParsedWish[]>([]);
 
   useEffect(() => {
     fetch('/api/health')
@@ -43,16 +47,34 @@ export default function App() {
         />
       </div>
 
-      {/* Main Container */}
-      <main className="glass-card" style={{ padding: '32px 24px', textAlign: 'center' }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔮</div>
-        <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '8px' }}>Wish it. Your agent handles the rest.</h2>
-        <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: '1.6' }}>
-          {verifiedHuman
-            ? 'Your dedicated AI Agent is active and ready to process your natural language wishes.'
-            : 'WISHERS empowers verified humans with an autonomous AI execution agent for DeFi protection and RWA stock hedging.'}
-        </p>
-      </main>
+      {/* Natural Language Wish Chat */}
+      <WishChat
+        verifiedHuman={verifiedHuman}
+        onWishParsed={(wish) => setActiveParsedWish(wish)}
+      />
+
+      {/* Confirmation & Coin Tossing Modal */}
+      <WishingWell
+        parsedWish={activeParsedWish}
+        onCancel={() => setActiveParsedWish(null)}
+        onConfirmWish={(confirmedWish) => {
+          setActiveWishList([confirmedWish, ...activeWishList]);
+          setActiveParsedWish(null);
+        }}
+      />
+
+      {/* Active Wish List */}
+      {activeWishList.length > 0 && (
+        <div style={{ marginTop: '24px' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px' }}>Locked Active Wishes ({activeWishList.length})</h3>
+          {activeWishList.map((w, idx) => (
+            <div key={idx} className="glass-card" style={{ padding: '16px', marginBottom: '12px', borderLeft: '4px solid var(--color-accent-primary)' }}>
+              <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>{w.humanReadableSummary}</div>
+              <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>Status: Active Monitoring via The Graph</div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

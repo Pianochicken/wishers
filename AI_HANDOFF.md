@@ -8,9 +8,9 @@
 # AI Session Handoff & Progress Log (WISHERS)
 
 ## 📌 Current Focus & Phase
-- **Active Phase**: Phase 3 in Progress (Sub-Step 3.2 Complete: Frontend Dual-Tier Smart Wish Chips Wall `<WishChat />`)
+- **Active Phase**: Phase 3 Complete ➔ Moving to Phase 4 (Uniswap Trading API v1 & Live Flywheel Hub)
 - **Branch**: `develop`
-- **Build Status**: `npm run typecheck` Passed (0 errors) | `npm run build` Passed (All 3 Workspaces)
+- **Build Status**: `npm run typecheck` Passed (0 errors) | `npm run build` Passed (All 3 Workspaces: frontend, backend, packages)
 
 ---
 
@@ -21,18 +21,21 @@
 ## 🎯 Completed Milestones
 1. ✅ **Git Infrastructure**: Initialized Git repository, `.gitignore`, and set up `develop` branch tracking `origin/develop`.
 2. ✅ **npm Workspaces Monorepo Architecture**: Clean separation into `frontend/`, `backend/`, and `packages/wishers-mcp-server-thegraph/`.
-3. ✅ **Full Monorepo Build Support**: `npm run build` verifies all 3 workspaces simultaneously.
-4. ✅ **Phase 1 Setup Scaffold**: Vite React + Express API with `/api/health` and Palette C UI tokens (`#E0E7FF`, `#38BDF8`).
-5. ✅ **Phase 2 World ID Gate**: `backend/routes/auth.ts` & `frontend/src/components/WorldIDGate.tsx` displaying verified Nullifier and active Agent Wallet.
-6. ✅ **Sub-Step 3.1 Backend AI Intent Engine**: `backend/routes/ai.ts` with 3-Layer Security Sandbox & Balance Guard.
-7. ✅ **Sub-Step 3.2 Frontend Smart Wish Chips (`<WishChat.tsx />`)**:
-   - `frontend/src/components/WishChat.tsx`: Dual-Tier Smart Wish Chips Wall (`👛 Portfolio-Aware` via wallet holdings + `🔥 Market Trends` via DEX volume).
-   - Natural language input connected to `/api/ai/parse-wish` with instant balance warnings and Zod validation!
+3. ✅ **Phase 1 Setup Scaffold**: Vite React + Express API with `/api/health` and Palette C UI tokens (`#E0E7FF`, `#38BDF8`).
+4. ✅ **Phase 2 World ID Gate**: `backend/routes/auth.ts` & `frontend/src/components/WorldIDGate.tsx` displaying verified Nullifier and active Agent Wallet.
+5. ✅ **Phase 3 Cyberpunk Wishing Well UX & 3-Layer AI Engine**:
+   - `backend/routes/ai.ts`: `/api/ai/parse-wish` with 3-Layer Security Sandbox & Balance Guard.
+   - `frontend/src/components/WishChat.tsx`: Dual-Tier Smart Wish Chips Wall (`👛 Portfolio-Aware` + `🔥 Market Trends`).
+   - `frontend/src/components/WishingWell.tsx`: Cyberpunk Wish Confirmation Modal with 3D Coin Tossing particle animation and active wish locking state!
 
 ---
 
-## 🚀 Next Steps (Phase 3 Continued: Cyberpunk Wishing Well UX)
-1. **Sub-Step 3.3**: Build `<WishingWell />` UI with 3D Wish Coin tossing particle animation & wish confirmation modal in `frontend/src/components/WishingWell.tsx`.
+## 🚀 Next Steps (Phase 4: Uniswap Trading API v1 & Live Flywheel Hub)
+1. **Task 4.1**: Implement backend `/api/uniswap/quote` and `/api/uniswap/swap` via Uniswap Trading API v1 in `backend/routes/uniswap.ts`.
+2. **Task 4.2**: Add Tokenized Stocks (RWA) preset routing (`dNVDA`, `bAAPL`).
+3. **Task 4.3**: Configure `integratorFee` (0.1% = 10 bips) with 3-way Sponsor Flywheel split.
+4. **Task 4.4**: Build frontend `<FlywheelHub.tsx />` transparent card displaying live fee earnings and sponsor token buybacks.
+5. **Task 4.5**: Create mandatory `FEEDBACK.md` for Uniswap bounty qualification.
 
 ## 📂 Architecture Reference
 - **Frontend**: React + Vite (Vanilla CSS / Tailwind)
