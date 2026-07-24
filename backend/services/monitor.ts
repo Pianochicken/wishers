@@ -36,7 +36,7 @@ export async function queryTheGraphPoolTVL(poolAddress: string): Promise<{ token
   const apiKey = process.env.THE_GRAPH_API_KEY;
   const subgraphId = process.env.THE_GRAPH_SUBGRAPH_ID || 'G3FPDaq8KdDqwa33Q8P8A4EwM91aZfH7gG8rE7wE4B8L';
 
-  if (apiKey && apiKey !== 'your_the_graph_api_key_here') {
+  if (apiKey && apiKey !== 'your_the_graph_api_key') {
     try {
       const endpoint = `https://gateway.thegraph.com/api/${apiKey}/subgraphs/id/${subgraphId}`;
       const query = `
