@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import WorldIDGate, { VerifiedHuman } from './components/WorldIDGate';
 
 export default function App() {
   const [backendStatus, setBackendStatus] = useState<string>('checking...');
+  const [verifiedHuman, setVerifiedHuman] = useState<VerifiedHuman | null>(null);
 
   useEffect(() => {
     fetch('/api/health')
@@ -33,17 +35,23 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main Scaffold Content */}
+      {/* World ID Gate */}
+      <div style={{ marginBottom: '24px' }}>
+        <WorldIDGate
+          verifiedHuman={verifiedHuman}
+          onVerified={(human) => setVerifiedHuman(human)}
+        />
+      </div>
+
+      {/* Main Container */}
       <main className="glass-card" style={{ padding: '32px 24px', textAlign: 'center' }}>
         <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔮</div>
         <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '8px' }}>Wish it. Your agent handles the rest.</h2>
-        <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: '1.6', marginBottom: '24px' }}>
-          WISHERS empowers verified humans with an autonomous AI execution agent for DeFi protection and RWA stock hedging.
+        <p style={{ fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: '1.6' }}>
+          {verifiedHuman
+            ? 'Your dedicated AI Agent is active and ready to process your natural language wishes.'
+            : 'WISHERS empowers verified humans with an autonomous AI execution agent for DeFi protection and RWA stock hedging.'}
         </p>
-
-        <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
-          <span>Connect World ID & Wallet</span>
-        </button>
       </main>
     </div>
   );

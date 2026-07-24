@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import authRouter from './routes/auth.js';
 
 dotenv.config();
 
@@ -10,6 +11,9 @@ const PORT = process.env.PORT || 3001;
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+// Routes
+app.use('/api/auth', authRouter);
 
 // Healthcheck Route
 app.get('/api/health', (req, res) => {
