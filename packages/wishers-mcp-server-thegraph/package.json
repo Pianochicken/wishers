@@ -1,0 +1,17 @@
+{
+  "name": "@wishers/mcp-server-thegraph",
+  "version": "1.0.0",
+  "description": "Standalone Open-Source MCP Server for The Graph DEX Risk Intelligence",
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "wishers-mcp": "index.js"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.0",
+    "dotenv": "^16.4.7"
+  }
+}

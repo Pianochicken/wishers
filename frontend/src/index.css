@@ -1,0 +1,120 @@
+/* ── WISHERS Palette C Design System ── */
+:root {
+  /* ── Base (Dark Theme) ── */
+  --color-bg-primary:    #0A0B0F;     /* Deep space black */
+  --color-bg-secondary:  #12141C;     /* Card backgrounds */
+  --color-bg-tertiary:   #1A1D2B;     /* Elevated surfaces */
+  --color-bg-hover:      #222639;     /* Hover states */
+
+  /* ── Text ── */
+  --color-text-primary:   #F0F2F5;    /* Primary body text */
+  --color-text-secondary: #8B8FA3;    /* Muted labels */
+  --color-text-tertiary:  #5A5E73;    /* Disabled text */
+
+  /* ── Accent (Palette C: Silver & Ice Blue) ── */
+  --color-accent-primary:   #38BDF8;  /* Ice Blue — buttons, active badges */
+  --color-accent-glow:      #E0E7FF;  /* Silver white glow */
+  --color-accent-gradient:  linear-gradient(135deg, #E0E7FF 0%, #38BDF8 50%, #0284C7 100%);
+
+  /* ── Semantic ── */
+  --color-success:   #00D68F;  /* Wish fulfilled, tx confirmed */
+  --color-warning:   #FFAA00;  /* Monitoring active */
+  --color-danger:    #FF4757;  /* Shield triggered, TVL crash */
+  --color-info:      #38BDF8;  /* Badges */
+
+  /* ── Borders & Glass ── */
+  --color-border:        rgba(255, 255, 255, 0.08);
+  --color-border-active: rgba(56, 189, 248, 0.4);
+  --glass-bg:            rgba(18, 20, 28, 0.72);
+  --glass-blur:          16px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glassmorphic Card Utility */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: var(--color-border-active);
+}
+
+/* Ice Blue Primary CTA Button */
+.btn-primary {
+  background: var(--color-accent-gradient);
+  color: #0A0B0F;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.25);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Agent Breathing Indicator */
+@keyframes breathing {
+  0%   { transform: scale(1);   opacity: 0.6; }
+  50%  { transform: scale(1.2); opacity: 1;   }
+  100% { transform: scale(1);   opacity: 0.6; }
+}
+
+.agent-breathing-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-accent-primary);
+  box-shadow: 0 0 12px var(--color-accent-primary);
+  animation: breathing 2.5s infinite ease-in-out;
+}
+
+/* Red Alert Shield Trigger Ripple */
+@keyframes alert-ripple {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 18px rgba(255, 71, 87, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 71, 87, 0);
+  }
+}
+
+.shield-alert-active {
+  border-color: var(--color-danger) !important;
+  animation: alert-ripple 1.5s infinite;
+}
