@@ -5,13 +5,14 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import authRouter from './routes/auth';
 import aiRouter from './routes/ai';
+import uniswapRouter from './routes/uniswap';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load root .env file
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
-dotenv.config(); // fallback to current dir
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -23,6 +24,7 @@ app.use(express.json());
 // Routes
 app.use('/api/auth', authRouter);
 app.use('/api/ai', aiRouter);
+app.use('/api/uniswap', uniswapRouter);
 
 // Healthcheck Route
 app.get('/api/health', (req: Request, res: Response) => {
