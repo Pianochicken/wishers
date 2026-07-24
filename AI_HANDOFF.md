@@ -8,7 +8,7 @@
 # AI Session Handoff & Progress Log (WISHERS)
 
 ## 📌 Current Focus & Phase
-- **Active Phase**: Phase 3 Complete & Verified via Production World App ➔ Moving to Phase 4 (Uniswap Trading API v1 & Live Flywheel Hub)
+- **Active Phase**: Phase 4 Complete ➔ Moving to Phase 5 (The Graph TVL Monitoring, Dev Trigger Switch & Monorepo MCP)
 - **Branch**: `develop`
 - **Build Status**: `npm run typecheck` Passed (0 errors) | `npm run build` Passed (All 3 Workspaces)
 
@@ -22,22 +22,20 @@
 1. ✅ **Git Infrastructure**: Initialized Git repository, `.gitignore`, and set up `develop` branch tracking `origin/develop`.
 2. ✅ **npm Workspaces Monorepo Architecture**: Clean separation into `frontend/`, `backend/`, and `packages/wishers-mcp-server-thegraph/`.
 3. ✅ **Phase 1 Setup Scaffold**: Vite React + Express API with `/api/health` and Palette C UI tokens (`#E0E7FF`, `#38BDF8`).
-4. ✅ **Phase 2 & 3 World ID Gate (Production Verified 🎉)**:
-   - `backend/routes/auth.ts`: Backend `/api/auth/rp-signature` HMAC-SHA256 signing with `RP_SIGNING_KEY` preventing replay attacks.
-   - `frontend/src/components/WorldIDGate.tsx`: Official World App QR Scanner + Staging Simulator switch. Tested & verified live on physical phone via World App!
-5. ✅ **Phase 3 Cyberpunk Wishing Well UX & 3-Layer AI Engine**:
-   - `backend/routes/ai.ts`: `/api/ai/parse-wish` with 3-Layer Security Sandbox & Balance Guard.
-   - `frontend/src/components/WishChat.tsx`: Dual-Tier Smart Wish Chips Wall (`👛 Portfolio-Aware` + `🔥 Market Trends`).
-   - `frontend/src/components/WishingWell.tsx`: Cyberpunk Wish Confirmation Modal with 3D Coin Tossing particle animation and active wish locking state!
+4. ✅ **Phase 2 World ID Gate (Verified 🎉)**: `backend/routes/auth.ts` & `frontend/src/components/WorldIDGate.tsx` tested & verified live on physical phone via World App!
+5. ✅ **Phase 3 Cyberpunk Wishing Well UX & 3-Layer AI Engine**: `backend/routes/ai.ts`, `<WishChat.tsx />`, `<WishingWell.tsx />` with 3D coin tossing & water ripple animations.
+6. ✅ **Phase 4 Uniswap Trading API v1, RWA Stocks & Live Flywheel Hub**:
+   - `backend/routes/uniswap.ts`: `/api/uniswap/quote` & `/api/uniswap/swap` with Native ETH & Mock Tokens (`MockUSDC`, `dNVDA`).
+   - `frontend/src/components/WishCard.tsx`: **Instant ⚡ Test Trigger Swap Now Button** displaying real tx hash and BaseScan receipt.
+   - `frontend/src/components/FlywheelHub.tsx`: Live transparent 0.1% fee counter and 3-way Sponsor Flywheel split dashboard.
+   - `FEEDBACK.md`: Mandatory feedback report for Uniswap Bounty qualification.
 
 ---
 
-## 🚀 Next Steps (Phase 4: Uniswap Trading API v1 & Live Flywheel Hub)
-1. **Task 4.1**: Implement backend `/api/uniswap/quote` and `/api/uniswap/swap` via Uniswap Trading API v1 in `backend/routes/uniswap.ts`.
-2. **Task 4.2**: Add Tokenized Stocks (RWA) preset routing (`dNVDA`, `bAAPL`).
-3. **Task 4.3**: Configure `integratorFee` (0.1% = 10 bips) with 3-way Sponsor Flywheel split.
-4. **Task 4.4**: Build frontend `<FlywheelHub.tsx />` transparent card displaying live fee earnings and sponsor token buybacks.
-5. **Task 4.5**: Create mandatory `FEEDBACK.md` for Uniswap bounty qualification.
+## 🚀 Next Steps (Phase 5: The Graph TVL Monitoring & Monorepo MCP Server)
+1. **Task 5.1**: Implement `backend/services/monitor.ts` for Uniswap V3 Subgraph batch TVL polling.
+2. **Task 5.2**: Implement Dev/Demo TVL Crash Trigger Switch (`backend/routes/debug.ts` `/api/debug/simulate-tvl-drop`).
+3. **Task 5.3**: Build **`packages/wishers-mcp-server-thegraph`** (Standalone MCP Server exposing `query_pool_risk_intelligence` tool).
 
 ## 📂 Architecture Reference
 - **Frontend**: React + Vite (Vanilla CSS / Tailwind)
