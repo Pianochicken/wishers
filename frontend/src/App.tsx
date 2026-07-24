@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import WorldIDGate, { VerifiedHuman } from './components/WorldIDGate';
+import WalletConnect from './components/WalletConnect';
 import WishChat, { ParsedWish } from './components/WishChat';
 import WishingWell from './components/WishingWell';
 import WishCard from './components/WishCard';
@@ -8,6 +9,7 @@ import FlywheelHub from './components/FlywheelHub';
 export default function App() {
   const [backendStatus, setBackendStatus] = useState<string>('checking...');
   const [verifiedHuman, setVerifiedHuman] = useState<VerifiedHuman | null>(null);
+  const [connectedWalletAddress, setConnectedWalletAddress] = useState<string | null>(null);
   const [activeParsedWish, setActiveParsedWish] = useState<ParsedWish | null>(null);
   const [activeWishList, setActiveWishList] = useState<ParsedWish[]>([]);
   const [totalFeesCollectedEth, setTotalFeesCollectedEth] = useState<number>(0.00015);
@@ -44,7 +46,7 @@ export default function App() {
   return (
     <div style={{ maxWidth: '480px', margin: '0 auto', padding: '20px' }}>
       {/* Header Bar */}
-      <header className="glass-card" style={{ padding: '16px 20px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <header className="glass-card" style={{ padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <img src="/logo.png" alt="WISHERS Logo" style={{ width: '38px', height: '38px', borderRadius: '10px', objectFit: 'cover', boxShadow: '0 0 12px rgba(56, 189, 248, 0.3)' }} />
           <div>
@@ -63,6 +65,9 @@ export default function App() {
           </span>
         </div>
       </header>
+
+      {/* Web3 Wallet Connection Component */}
+      <WalletConnect onWalletConnected={(addr) => setConnectedWalletAddress(addr)} />
 
       {/* World ID Gate */}
       <div style={{ marginBottom: '24px' }}>
@@ -91,7 +96,7 @@ export default function App() {
         }}
       />
 
-      {/* Active Wish Cards List with Rug Pull Shield Alerts */}
+      {/* Active Wish Cards List with Real Web3 Wallet & Rug Pull Shield */}
       {activeWishList.length > 0 && (
         <div style={{ marginTop: '24px' }}>
           <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px' }}>Active Wishes ({activeWishList.length})</h3>
@@ -100,6 +105,7 @@ export default function App() {
               key={idx}
               wish={wish}
               verifiedHuman={verifiedHuman}
+              connectedWalletAddress={connectedWalletAddress}
               onSwapExecuted={handleSwapExecuted}
               isSimulatedCrashActive={isSimulatedCrashActive}
               onToggleSimulatedCrash={handleToggleSimulatedCrash}

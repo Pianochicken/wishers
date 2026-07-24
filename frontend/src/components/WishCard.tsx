@@ -6,6 +6,7 @@ import { VerifiedHuman } from './WorldIDGate';
 interface WishCardProps {
   wish: ParsedWish;
   verifiedHuman: VerifiedHuman | null;
+  connectedWalletAddress: string | null;
   onSwapExecuted: (result: any) => void;
   isSimulatedCrashActive: boolean;
   onToggleSimulatedCrash: () => void;
@@ -14,6 +15,7 @@ interface WishCardProps {
 export default function WishCard({
   wish,
   verifiedHuman,
+  connectedWalletAddress,
   onSwapExecuted,
   isSimulatedCrashActive,
   onToggleSimulatedCrash,
@@ -27,7 +29,7 @@ export default function WishCard({
     if (isSimulatedCrashActive && !executionResult && !executing && !shieldIntercepting) {
       setShieldIntercepting(true);
 
-      // Delay 2.5s so judges/users can clearly see the red alert & agent reaction before executing swap
+      // Delay 5s so judges/users can clearly see the red alert & agent reaction before executing swap
       const timer = setTimeout(() => {
         handleExecuteSwap(true);
       }, 5000);
@@ -38,15 +40,60 @@ export default function WishCard({
 
   const handleExecuteSwap = async (isAutoShieldTrigger = false) => {
     setExecuting(true);
+    let realSignedTxHash: string | null = null;
 
     try {
+      // 1. Fetch Dynamic Uniswap Quote and Target Treasury Recipient from Backend API
+      const quoteRes = await fetch('/api/uniswap/quote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tokenInSymbol: wish.targetTokenSymbol || 'ETH',
+          tokenOutSymbol: wish.destinationTokenSymbol || 'USDC',
+          amount: wish.actionAmount || '0.001',
+          swapperAddress: connectedWalletAddress || verifiedHuman?.agentWallet,
+        }),
+      });
+
+      const quoteData = await quoteRes.json();
+      const targetTreasury = quoteData.integratorFee?.treasuryRecipient || quoteData.treasuryRecipient;
+
+      // 2. Dynamically calculate Hex value from the user's parsed wish amount
+      const numericAmount = parseFloat(wish.actionAmount || '0.001');
+      const amountInWeiHex = '0x' + BigInt(Math.floor(numericAmount * 1e18)).toString(16);
+
+      // 3. Check if MetaMask is connected for Real On-Chain Base Sepolia Transaction
+      if (typeof window !== 'undefined' && window.ethereum && targetTreasury) {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          const activeWallet = connectedWalletAddress || (accounts && accounts.length > 0 ? accounts[0] : null);
+          if (activeWallet) {
+            // Prompt MetaMask with dynamically computed Hex value and target treasury
+            const txParams = {
+              from: activeWallet,
+              to: targetTreasury,
+              value: amountInWeiHex, // Dynamically computed Wei in Hex from wish.actionAmount
+              gas: '0x5208', // 21000 standard gas limit
+            };
+            realSignedTxHash = await window.ethereum.request({
+              method: 'eth_sendTransaction',
+              params: [txParams],
+            });
+          }
+        } catch (metamaskErr) {
+          console.warn('MetaMask signing bypassed or cancelled by user, falling back to Agent delegation execution:', metamaskErr);
+        }
+      }
+
+      // 4. Complete Swap Execution via Backend API
       const res = await fetch('/api/uniswap/swap', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           wish,
-          agentWallet: verifiedHuman?.agentWallet || '0xAgent_DelegatedWallet',
+          agentWallet: connectedWalletAddress || verifiedHuman?.agentWallet || '0xAgent_DelegatedWallet',
           triggeredByShield: isAutoShieldTrigger,
+          userSignedTxHash: realSignedTxHash,
         }),
       });
 
@@ -198,7 +245,7 @@ export default function WishCard({
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--color-success)', fontWeight: '600' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <CheckCircle2 size={14} />
-              <span>Shield Protected & Swapped by Agent</span>
+              <span>{executionResult.isRealOnChainTx ? 'Real On-Chain Signed & Swapped via MetaMask' : 'Shield Protected & Swapped by Agent'}</span>
             </div>
             <a
               href={`https://sepolia.basescan.org/tx/${executionResult.txHash}`}
@@ -225,7 +272,7 @@ export default function WishCard({
           style={{ width: '100%', justifyContent: 'center', padding: '10px 16px', fontSize: '12px' }}
         >
           {executing || shieldIntercepting ? <RefreshCw className="animate-spin" size={16} /> : <Play size={16} />}
-          <span>{executing || shieldIntercepting ? 'Agent Executing Emergency Swap...' : '⚡ Test Trigger Swap Now'}</span>
+          <span>{executing || shieldIntercepting ? 'Agent Executing Emergency Swap...' : '⚡ Test Trigger Swap Now (Real On-Chain Sign)'}</span>
         </button>
       )}
     </div>
