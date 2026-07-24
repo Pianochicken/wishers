@@ -10,6 +10,9 @@ export interface ParsedWish {
   actionAmount: string;
   destinationTokenSymbol: string;
   humanReadableSummary: string;
+  createdAt?: number;
+  expiresAt?: number;
+  durationHours?: number;
 }
 
 interface WishChatProps {
@@ -38,46 +41,36 @@ export default function WishChat({ verifiedHuman, onWishParsed }: WishChatProps)
     {
       icon: <DollarSign size={14} color="var(--color-warning)" />,
       label: '💵 Depeg Guard: Swap USDT to USDC if < $0.992',
-      prompt: 'Swap USDT to USDC if USDT price depegs below $0.992',
+      prompt: 'If USDT drops below $0.992, emergency swap USDT to MockUSDC',
     },
   ];
 
-  const portfolioChips = [
-    {
-      icon: <ShieldAlert size={14} color="var(--color-danger)" />,
-      label: '🛡️ Protect 0.5 ETH: Emergency Swap on Crash',
-      prompt: 'If ETH drops 30%, swap 0.1 ETH to MockUSDC for safety',
-    },
-    {
-      icon: <TrendingUp size={14} color="var(--color-accent-primary)" />,
-      label: '📈 Hedge 0.1 ETH: Auto Buy dNVDA Stock on Dip',
-      prompt: 'If ETH dips 10%, swap 0.1 ETH to tokenized Nvidia stock (dNVDA)',
-    },
-  ];
-
-  const handleParseWish = async (promptToParse?: string) => {
-    const targetPrompt = promptToParse || inputPrompt;
-    if (!targetPrompt.trim()) return;
-
+  const handleParseWish = async (promptText: string) => {
+    if (!promptText.trim()) return;
     setLoading(true);
     setBalanceWarning(null);
 
     try {
-      const res = await fetch('/api/ai/parse-wish', {
+      const res = await fetch('/api/wish/parse', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: targetPrompt,
-          userBalance: '0.5', // Simulated connected Sepolia ETH balance
+          prompt: promptText,
+          verifiedHuman: verifiedHuman,
         }),
       });
 
       const data = await res.json();
-      if (data.status === 'success') {
-        if (data.balanceGuard?.warning) {
-          setBalanceWarning(data.balanceGuard.warning);
-        }
-        onWishParsed(data.wish);
+      if (data.status === 'success' && data.parsedWish) {
+        const now = Date.now();
+        const durationHours = 24;
+        const completeWish: ParsedWish = {
+          ...data.parsedWish,
+          createdAt: now,
+          expiresAt: now + durationHours * 3600 * 1000,
+          durationHours: durationHours,
+        };
+        onWishParsed(completeWish);
       }
     } catch (err) {
       console.error('Error parsing wish:', err);
@@ -87,52 +80,39 @@ export default function WishChat({ verifiedHuman, onWishParsed }: WishChatProps)
   };
 
   return (
-    <div className="glass-card" style={{ padding: '24px', marginBottom: '24px' }}>
-      {/* Header & Tabs */}
+    <div className="glass-card" style={{ padding: '20px', marginBottom: '20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Sparkles size={18} color="var(--color-accent-primary)" />
-          <h3 style={{ fontSize: '16px', fontWeight: '700' }}>Express Your Financial Wish</h3>
+          <h2 style={{ fontSize: '15px', fontWeight: '700' }}>Express Your Financial Wish</h2>
         </div>
-
-        {/* Preset Tabs Switcher */}
-        <div style={{ display: 'flex', gap: '4px', background: 'rgba(255, 255, 255, 0.04)', padding: '3px', borderRadius: '10px' }}>
-          <button
-            onClick={() => setActiveTab('trending')}
-            style={{
-              fontSize: '11px',
-              padding: '4px 10px',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeTab === 'trending' ? 'var(--color-accent-primary)' : 'transparent',
-              color: activeTab === 'trending' ? '#0A0B0F' : 'var(--color-text-secondary)',
-              fontWeight: '600',
-              cursor: 'pointer',
-            }}
-          >
-            🔥 Market Trends
-          </button>
-          <button
-            onClick={() => setActiveTab('portfolio')}
-            style={{
-              fontSize: '11px',
-              padding: '4px 10px',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeTab === 'portfolio' ? 'var(--color-accent-primary)' : 'transparent',
-              color: activeTab === 'portfolio' ? '#0A0B0F' : 'var(--color-text-secondary)',
-              fontWeight: '600',
-              cursor: 'pointer',
-            }}
-          >
-            👛 Your Wallet
-          </button>
-        </div>
+        <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '10px' }}>
+          AI Sandbox Ready
+        </span>
       </div>
 
-      {/* Preset Chips Wall */}
+      {/* Preset Chips Tabs */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+        <button
+          onClick={() => setActiveTab('trending')}
+          style={{
+            fontSize: '11px',
+            padding: '4px 10px',
+            borderRadius: '6px',
+            border: activeTab === 'trending' ? '1px solid var(--color-accent-primary)' : '1px solid transparent',
+            background: activeTab === 'trending' ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
+            color: activeTab === 'trending' ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+            fontWeight: '600',
+            cursor: 'pointer',
+          }}
+        >
+          🔥 Smart Presets
+        </button>
+      </div>
+
+      {/* Preset Chips Carousel */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
-        {(activeTab === 'trending' ? trendingChips : portfolioChips).map((chip, idx) => (
+        {trendingChips.map((chip, idx) => (
           <button
             key={idx}
             onClick={() => {
@@ -143,8 +123,8 @@ export default function WishChat({ verifiedHuman, onWishParsed }: WishChatProps)
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              padding: '10px 14px',
-              borderRadius: '10px',
+              padding: '10px 12px',
+              borderRadius: '8px',
               background: 'rgba(255, 255, 255, 0.03)',
               border: '1px solid var(--color-border)',
               color: 'var(--color-text-primary)',
@@ -155,53 +135,53 @@ export default function WishChat({ verifiedHuman, onWishParsed }: WishChatProps)
             }}
           >
             {chip.icon}
-            <span>{chip.label}</span>
+            <span style={{ flex: 1 }}>{chip.label}</span>
           </button>
         ))}
       </div>
 
-      {/* Balance Warning (if triggered) */}
-      {balanceWarning && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', borderRadius: '8px', background: 'rgba(255, 170, 0, 0.1)', border: '1px solid rgba(255, 170, 0, 0.3)', color: 'var(--color-warning)', fontSize: '12px', marginBottom: '16px' }}>
-          <AlertTriangle size={16} />
-          <span>{balanceWarning}</span>
-        </div>
-      )}
-
-      {/* Natural Language Prompt Form */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleParseWish();
-        }}
-        style={{ display: 'flex', gap: '8px' }}
-      >
+      {/* Chat Input */}
+      <div style={{ position: 'relative' }}>
         <input
           type="text"
           value={inputPrompt}
           onChange={(e) => setInputPrompt(e.target.value)}
-          placeholder={verifiedHuman ? "Type your wish... (e.g. Buy Nvidia stock if ETH dips 10%)" : "Verify World ID to unlock AI Agent..."}
-          disabled={!verifiedHuman || loading}
+          placeholder="e.g. If ETH pool drops 50%, swap to USDC..."
+          onKeyDown={(e) => e.key === 'Enter' && handleParseWish(inputPrompt)}
           style={{
-            flex: 1,
-            background: 'rgba(0, 0, 0, 0.3)',
+            width: '100%',
+            padding: '12px 45px 12px 14px',
+            borderRadius: '10px',
+            background: 'rgba(255, 255, 255, 0.05)',
             border: '1px solid var(--color-border)',
-            borderRadius: '12px',
-            padding: '12px 16px',
             color: 'var(--color-text-primary)',
             fontSize: '13px',
             outline: 'none',
           }}
         />
         <button
-          type="submit"
-          className="btn-primary"
-          disabled={!verifiedHuman || loading || !inputPrompt.trim()}
-          style={{ padding: '12px 16px', borderRadius: '12px' }}
+          onClick={() => handleParseWish(inputPrompt)}
+          disabled={loading || !inputPrompt.trim()}
+          style={{
+            position: 'absolute',
+            right: '8px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            background: 'var(--color-accent-gradient)',
+            border: 'none',
+            borderRadius: '8px',
+            width: '32px',
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            opacity: loading || !inputPrompt.trim() ? 0.5 : 1,
+          }}
         >
-          {loading ? <RefreshCw className="animate-spin" size={18} /> : <Send size={18} />}
+          {loading ? <RefreshCw className="animate-spin" size={14} color="#fff" /> : <Send size={14} color="#fff" />}
         </button>
-      </form>
+      </div>
     </div>
   );
 }

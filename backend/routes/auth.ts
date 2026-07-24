@@ -1,7 +1,8 @@
-import express, { Request, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import crypto from 'crypto';
+import { getOrCreateRealAgentWallet } from '../services/agent.js';
 
-const router = express.Router();
+const router = Router();
 
 const APP_ID = process.env.VITE_WORLD_APP_ID || process.env.WORLD_APP_ID || 'app_staging_wishers_ethglobal';
 const RP_ID = process.env.WORLD_RP_ID || 'rp_wishers_ethglobal';
@@ -36,7 +37,7 @@ router.post('/rp-signature', (req: Request, res: Response) => {
 
 /**
  * POST /api/auth/verify-proof
- * Verifies ZK Proof and registers Agent in AgentBook (Human-Backed Delegation)
+ * Verifies ZK Proof and registers REAL EVM Agent Wallet bound to World ID
  */
 router.post('/verify-proof', async (req: Request, res: Response) => {
   try {
@@ -45,16 +46,21 @@ router.post('/verify-proof', async (req: Request, res: Response) => {
     const nullifierHash = idkitResponse?.nullifier_hash || `0x_simulated_nullifier_${Date.now()}`;
     const proofLevel = idkitResponse?.verification_level || (isSimulator ? 'staging_simulator' : 'orb');
 
-    const agentWallet = `0xAgent_${crypto.createHash('md5').update(nullifierHash).digest('hex').substring(0, 10)}`;
+    // Create REAL EVM Base Sepolia Wallet deterministically bound to nullifierHash
+    const session = getOrCreateRealAgentWallet(nullifierHash, 24);
 
     console.log(`✅ [World ID Verified] Human Nullifier: ${nullifierHash} | Level: ${proofLevel}`);
-    console.log(`🤖 [AgentBook Registered] Delegated Execution Wallet: ${agentWallet}`);
+    console.log(`🤖 [AgentBook Registered] REAL Base Sepolia Agent Wallet: ${session.agentAddress}`);
+    console.log(`⏰ [Session Key Active] Valid until: ${new Date(session.expiresAt).toLocaleString()}`);
 
     res.json({
       status: 'success',
       nullifier: nullifierHash,
       verificationLevel: proofLevel,
-      agentWallet: agentWallet,
+      agentWallet: session.agentAddress,
+      createdAt: session.createdAt,
+      expiresAt: session.expiresAt,
+      durationHours: session.durationHours,
       executionRightsGranted: true,
       timestamp: new Date().toISOString(),
     });

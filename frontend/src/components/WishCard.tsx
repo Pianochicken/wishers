@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Play, CheckCircle2, ExternalLink, Sparkles, RefreshCw, AlertTriangle, ShieldAlert, Flame, Cpu } from 'lucide-react';
+import { ShieldCheck, Play, CheckCircle2, ExternalLink, Sparkles, RefreshCw, AlertTriangle, ShieldAlert, Flame, Cpu, Clock, RotateCcw } from 'lucide-react';
 import { ParsedWish } from './WishChat';
 import { VerifiedHuman } from './WorldIDGate';
 
@@ -13,20 +13,69 @@ interface WishCardProps {
 }
 
 export default function WishCard({
-  wish,
+  wish: initialWish,
   verifiedHuman,
   connectedWalletAddress,
   onSwapExecuted,
   isSimulatedCrashActive,
   onToggleSimulatedCrash,
 }: WishCardProps) {
+  const [wish, setWish] = useState<ParsedWish>(initialWish);
   const [executing, setExecuting] = useState(false);
   const [executionResult, setExecutionResult] = useState<any | null>(null);
   const [shieldIntercepting, setShieldIntercepting] = useState(false);
+  const [timeLeftStr, setTimeLeftStr] = useState<string>('');
+  const [isExpired, setIsExpired] = useState<boolean>(false);
+
+  // Live Timer Countdown Hook for 24h Protection TTL
+  useEffect(() => {
+    const updateCountdown = () => {
+      if (!wish.expiresAt) {
+        setTimeLeftStr('24h left');
+        return;
+      }
+
+      const now = Date.now();
+      const diffMs = wish.expiresAt - now;
+
+      if (diffMs <= 0) {
+        setTimeLeftStr('Expired');
+        setIsExpired(true);
+      } else {
+        setIsExpired(false);
+        const hours = Math.floor(diffMs / (1000 * 60 * 60));
+        const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        const secs = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+        if (hours > 0) {
+          setTimeLeftStr(`${hours}h ${mins}m left`);
+        } else if (mins > 0) {
+          setTimeLeftStr(`${mins}m ${secs}s left`);
+        } else {
+          setTimeLeftStr(`${secs}s left`);
+        }
+      }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [wish.expiresAt]);
+
+  const handleRenewWish = () => {
+    const now = Date.now();
+    const durationHours = 24;
+    setWish((prev) => ({
+      ...prev,
+      createdAt: now,
+      expiresAt: now + durationHours * 3600 * 1000,
+    }));
+    setIsExpired(false);
+  };
 
   // Cinematic 3-Stage Shield Reaction Flow (Red Alert -> Agent Intercepting -> Fulfilled)
   useEffect(() => {
-    if (isSimulatedCrashActive && !executionResult && !executing && !shieldIntercepting) {
+    if (isSimulatedCrashActive && !executionResult && !executing && !shieldIntercepting && !isExpired) {
       setShieldIntercepting(true);
 
       // Delay 5s so judges/users can clearly see the red alert & agent reaction before executing swap
@@ -36,9 +85,10 @@ export default function WishCard({
 
       return () => clearTimeout(timer);
     }
-  }, [isSimulatedCrashActive]);
+  }, [isSimulatedCrashActive, isExpired]);
 
   const handleExecuteSwap = async (isAutoShieldTrigger = false) => {
+    if (isExpired) return;
     setExecuting(true);
     let realSignedTxHash: string | null = null;
 
@@ -110,7 +160,7 @@ export default function WishCard({
     }
   };
 
-  const isCriticalAlert = (isSimulatedCrashActive || shieldIntercepting) && !executionResult;
+  const isCriticalAlert = (isSimulatedCrashActive || shieldIntercepting) && !executionResult && !isExpired;
 
   return (
     <div
@@ -120,12 +170,15 @@ export default function WishCard({
         marginBottom: '16px',
         borderLeft: executionResult
           ? '4px solid var(--color-success)'
+          : isExpired
+          ? '4px solid var(--color-text-tertiary)'
           : isCriticalAlert
           ? '4px solid #EF4444'
           : '4px solid var(--color-accent-primary)',
         boxShadow: isCriticalAlert
           ? '0 0 25px rgba(239, 68, 68, 0.45)'
           : '0 4px 12px rgba(0, 0, 0, 0.15)',
+        opacity: isExpired ? 0.85 : 1,
         transition: 'all 0.3s ease',
       }}
     >
@@ -135,14 +188,14 @@ export default function WishCard({
           {isCriticalAlert ? (
             <ShieldAlert size={20} color="#EF4444" className="animate-pulse" />
           ) : (
-            <Sparkles size={16} color="var(--color-accent-primary)" />
+            <Sparkles size={16} color={isExpired ? 'var(--color-text-tertiary)' : 'var(--color-accent-primary)'} />
           )}
           <span style={{ fontWeight: '700', fontSize: '14px' }}>
             {wish.targetTokenSymbol} &rarr; {wish.destinationTokenSymbol}
           </span>
         </div>
 
-        {/* Dynamic Status Badge */}
+        {/* Dynamic Status Badge with Live Countdown */}
         <span
           style={{
             fontSize: '11px',
@@ -150,11 +203,15 @@ export default function WishCard({
             borderRadius: '12px',
             background: executionResult
               ? 'rgba(0, 214, 143, 0.15)'
+              : isExpired
+              ? 'rgba(255, 255, 255, 0.08)'
               : isCriticalAlert
               ? 'rgba(239, 68, 68, 0.25)'
               : 'rgba(56, 189, 248, 0.15)',
             color: executionResult
               ? 'var(--color-success)'
+              : isExpired
+              ? 'var(--color-text-tertiary)'
               : isCriticalAlert
               ? '#EF4444'
               : 'var(--color-accent-primary)',
@@ -165,11 +222,21 @@ export default function WishCard({
             gap: '4px',
           }}
         >
-          {executionResult
-            ? 'Fulfilled 🎉'
-            : isCriticalAlert
-            ? '🚨 CRITICAL RUG PULL DETECTED (-65%)'
-            : '🟢 Monitoring Active'}
+          {executionResult ? (
+            'Fulfilled 🎉'
+          ) : isExpired ? (
+            <>
+              <Clock size={12} />
+              <span>⌛ Protection Expired</span>
+            </>
+          ) : isCriticalAlert ? (
+            '🚨 CRITICAL RUG PULL DETECTED (-65%)'
+          ) : (
+            <>
+              <Clock size={12} />
+              <span>🟢 Monitoring ({timeLeftStr})</span>
+            </>
+          )}
         </span>
       </div>
 
@@ -201,7 +268,7 @@ export default function WishCard({
       )}
 
       {/* Dev Crash Switch Trigger Bar */}
-      {!executionResult && (
+      {!executionResult && !isExpired && (
         <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
           <button
             onClick={onToggleSimulatedCrash}
@@ -228,7 +295,7 @@ export default function WishCard({
         </div>
       )}
 
-      {/* Execution Result Banner / Manual Trigger Button */}
+      {/* Execution Result Banner / Expired Renewal Button / Manual Trigger Button */}
       {executionResult ? (
         <div
           style={{
@@ -264,6 +331,21 @@ export default function WishCard({
             0.1% Integrator Fee: <span style={{ color: 'var(--color-success)', fontWeight: '600' }}>{executionResult.integratorFeeCollected?.amount}</span> &rarr; Flywheel Hub
           </div>
         </div>
+      ) : isExpired ? (
+        <button
+          onClick={handleRenewWish}
+          className="btn-primary"
+          style={{
+            width: '100%',
+            justifyContent: 'center',
+            padding: '10px 16px',
+            fontSize: '12px',
+            background: 'var(--color-accent-gradient)',
+          }}
+        >
+          <RotateCcw size={15} />
+          <span>⚡ Renew 24h Protection Free</span>
+        </button>
       ) : (
         <button
           className="btn-primary"
