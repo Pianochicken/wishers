@@ -61,7 +61,7 @@ export default function WishingWell({ parsedWish, onCancel, onConfirmWish }: Wis
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ color: 'var(--color-text-secondary)' }}>Condition:</span>
             <span style={{ fontWeight: '600', color: 'var(--color-warning)' }}>
-              {parsedWish.conditionType} &ge; {parsedWish.thresholdValue}%
+              {parsedWish.conditionType} &ge; {parsedWish.thresholdValue}{parsedWish.thresholdUnit ?? '%'}
             </span>
           </div>
 

@@ -1,14 +1,43 @@
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
+import OpenAI from 'openai';
+import { zodResponseFormat } from 'openai/helpers/zod';
 
 const router = express.Router();
+
+// Initialize AI clients (Ordered by priority: Groq first for free tier, then OpenAI)
+const getAIClients = () => {
+  const clients = [];
+  
+  if (process.env.GROQ_API_KEY && !process.env.GROQ_API_KEY.includes('your_groq_api_key')) {
+    clients.push({
+      client: new OpenAI({
+        apiKey: process.env.GROQ_API_KEY,
+        baseURL: 'https://api.groq.com/openai/v1',
+      }),
+      model: 'llama-3.3-70b-versatile',
+      provider: 'Groq (llama-3.3-70b)',
+    });
+  }
+
+  if (process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.includes('your_openai_api_key')) {
+    clients.push({
+      client: new OpenAI({ apiKey: process.env.OPENAI_API_KEY }),
+      model: 'gpt-4o-mini',
+      provider: 'OpenAI (gpt-4o-mini)',
+    });
+  }
+  
+  return clients;
+};
 
 // Layer 3: Zod Schema for Strict Server-Side Validation
 export const wishIntentZodSchema = z.object({
   conditionType: z.enum(['TVL_DROP', 'PRICE_DROP', 'PRICE_SPIKE', 'DEPEG']),
   targetTokenSymbol: z.string().min(1).max(10),
   thresholdValue: z.number().positive(),
-  actionType: z.enum(['SWAP', 'NOTIFY']),
+  thresholdUnit: z.string().describe("e.g. '%' for TVL or depeg drops, '$' for price spikes, or empty string '' if none"),
+  actionType: z.enum(['SWAP', 'STAKE', 'NOTIFY']),
   actionAmount: z.string().min(1),
   destinationTokenSymbol: z.string().min(1).max(10).default('USDC'),
   humanReadableSummary: z.string(),
@@ -30,51 +59,127 @@ router.post('/parse-wish', async (req: Request, res: Response) => {
     }
 
     // Heuristic/LLM Intent Parser (with OpenAI -> Groq -> Heuristic fallback)
-    const lowerPrompt = prompt.toLowerCase();
+    let parsedResult: Record<string, any> | null = null;
+    let parsedBy = 'Heuristic Engine';
 
-    let parsedResult: Record<string, any>;
+    const aiConfigs = getAIClients();
+    
+    for (const aiConfig of aiConfigs) {
+      try {
+        if (aiConfig.provider.includes('Groq')) {
+          // Groq JSON Mode
+          const completion = await aiConfig.client.chat.completions.create({
+            model: aiConfig.model,
+            messages: [
+              {
+                role: 'system',
+                content: `You are a DeFi intent parser. Translate the user's natural language wish into a structured JSON transaction intent. 
+The JSON must strictly match this structure:
+{
+  "conditionType": "TVL_DROP" | "PRICE_DROP" | "PRICE_SPIKE" | "DEPEG",
+  "targetTokenSymbol": "string (e.g. PEPE, BTC, ETH)",
+  "thresholdValue": number,
+  "thresholdUnit": "string (e.g. $, %, or empty)",
+  "actionType": "SWAP" | "STAKE" | "NOTIFY",
+  "actionAmount": "string (e.g. ALL, 100, 0.0001)",
+  "destinationTokenSymbol": "string (e.g. USDC, stETH)",
+  "humanReadableSummary": "string summary"
+}
+Return ONLY valid JSON.`,
+              },
+              {
+                role: 'user',
+                content: prompt,
+              },
+            ],
+            response_format: { type: 'json_object' },
+            temperature: 0.1,
+          });
 
-    if (lowerPrompt.includes('pepe') && (lowerPrompt.includes('tvl') || lowerPrompt.includes('drop') || lowerPrompt.includes('rug'))) {
-      parsedResult = {
-        conditionType: 'TVL_DROP',
-        targetTokenSymbol: 'PEPE',
-        thresholdValue: 50, // 50% TVL drop
-        actionType: 'SWAP',
-        actionAmount: 'ALL',
-        destinationTokenSymbol: 'USDC',
-        humanReadableSummary: 'Sell all PEPE for USDC if PEPE/USDC pool TVL drops 50%',
-      };
-    } else if (lowerPrompt.includes('nvda') || lowerPrompt.includes('nvidia') || lowerPrompt.includes('stock')) {
-      parsedResult = {
-        conditionType: 'PRICE_DROP',
-        targetTokenSymbol: 'ETH',
-        thresholdValue: 3000, // $3000 ETH
-        actionType: 'SWAP',
-        actionAmount: '100', // 100 USDC
-        destinationTokenSymbol: 'dNVDA',
-        humanReadableSummary: 'Hedge into Tokenized Nvidia Stock (dNVDA) if ETH dips below $3,000',
-      };
-    } else if (lowerPrompt.includes('usdt') || lowerPrompt.includes('depeg')) {
-      parsedResult = {
-        conditionType: 'DEPEG',
-        targetTokenSymbol: 'USDT',
-        thresholdValue: 0.992,
-        actionType: 'SWAP',
-        actionAmount: 'ALL',
-        destinationTokenSymbol: 'USDC',
-        humanReadableSummary: 'Swap USDT to USDC if USDT price depegs below $0.992',
-      };
-    } else {
-      // General default parsing
-      parsedResult = {
-        conditionType: 'TVL_DROP',
-        targetTokenSymbol: 'PEPE',
-        thresholdValue: 30,
-        actionType: 'SWAP',
-        actionAmount: 'ALL',
-        destinationTokenSymbol: 'USDC',
-        humanReadableSummary: `Monitor ${prompt} and execute emergency swap to USDC if risk is detected`,
-      };
+          if (completion.choices[0].message.content) {
+            parsedResult = JSON.parse(completion.choices[0].message.content);
+            parsedBy = aiConfig.provider;
+          }
+        } else {
+          // OpenAI Structured Outputs
+          const completion = await aiConfig.client.chat.completions.parse({
+            model: aiConfig.model,
+            messages: [
+              {
+                role: 'system',
+                content: 'You are a DeFi intent parser. Translate the user\'s natural language wish into a structured transaction intent. Extract the target token, condition, threshold value, and action. Write a clear, concise human-readable summary of what the wish will do.',
+              },
+              {
+                role: 'user',
+                content: prompt,
+              },
+            ],
+            response_format: zodResponseFormat(wishIntentZodSchema, 'wishIntent'),
+            temperature: 0.1,
+          });
+
+          if (completion.choices[0].message.parsed) {
+            parsedResult = completion.choices[0].message.parsed;
+            parsedBy = aiConfig.provider;
+          }
+        }
+        
+        // If we successfully parsed a result, break out of the fallback loop!
+        if (parsedResult) break;
+      } catch (err: any) {
+        console.warn(`[AI Fallback Cascade] ${aiConfig.provider} parsing failed (${err.message}). Trying next...`);
+      }
+    }
+
+    // Fallback if LLM failed or isn't configured
+    if (!parsedResult) {
+      const lowerPrompt = prompt.toLowerCase();
+      if (lowerPrompt.includes('pepe') && (lowerPrompt.includes('tvl') || lowerPrompt.includes('drop') || lowerPrompt.includes('rug'))) {
+        parsedResult = {
+          conditionType: 'TVL_DROP',
+          targetTokenSymbol: 'PEPE',
+          thresholdValue: 50, // 50% TVL drop
+          thresholdUnit: '%',
+          actionType: 'SWAP',
+          actionAmount: 'ALL',
+          destinationTokenSymbol: 'USDC',
+          humanReadableSummary: 'Sell all PEPE for USDC if PEPE/USDC pool TVL drops 50%',
+        };
+      } else if (lowerPrompt.includes('nvda') || lowerPrompt.includes('nvidia') || lowerPrompt.includes('stock')) {
+        parsedResult = {
+          conditionType: 'PRICE_DROP',
+          targetTokenSymbol: 'ETH',
+          thresholdValue: 3000, // $3000 ETH
+          thresholdUnit: '$',
+          actionType: 'SWAP',
+          actionAmount: '100', // 100 USDC
+          destinationTokenSymbol: 'dNVDA',
+          humanReadableSummary: 'Hedge into Tokenized Nvidia Stock (dNVDA) if ETH dips below $3,000',
+        };
+      } else if (lowerPrompt.includes('usdt') || lowerPrompt.includes('depeg')) {
+        parsedResult = {
+          conditionType: 'DEPEG',
+          targetTokenSymbol: 'USDT',
+          thresholdValue: 0.992,
+          thresholdUnit: '$',
+          actionType: 'SWAP',
+          actionAmount: 'ALL',
+          destinationTokenSymbol: 'USDC',
+          humanReadableSummary: 'Swap USDT to USDC if USDT price depegs below $0.992',
+        };
+      } else {
+        // General default parsing
+        parsedResult = {
+          conditionType: 'TVL_DROP',
+          targetTokenSymbol: 'PEPE',
+          thresholdValue: 30,
+          thresholdUnit: '%',
+          actionType: 'SWAP',
+          actionAmount: 'ALL',
+          destinationTokenSymbol: 'USDC',
+          humanReadableSummary: `Monitor ${prompt} and execute emergency swap to USDC if risk is detected`,
+        };
+      }
     }
 
     // Layer 3 Verification: Pass through Zod Schema
@@ -90,7 +195,7 @@ router.post('/parse-wish', async (req: Request, res: Response) => {
         isSufficient: isBalanceSufficient,
         warning: isBalanceSufficient ? null : 'Wallet balance is low. Wish will pause until funds arrive.',
       },
-      parsedBy: process.env.OPENAI_API_KEY ? 'OpenAI gpt-4o-mini' : 'Groq / Heuristic Engine',
+      parsedBy: parsedBy,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {

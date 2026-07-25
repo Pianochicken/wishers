@@ -7,7 +7,8 @@ export interface ParsedWish {
   conditionType: 'TVL_DROP' | 'PRICE_DROP' | 'PRICE_SPIKE' | 'DEPEG';
   targetTokenSymbol: string;
   thresholdValue: number;
-  actionType: 'SWAP' | 'NOTIFY';
+  thresholdUnit?: string;
+  actionType: 'SWAP' | 'STAKE' | 'NOTIFY';
   actionAmount: string;
   destinationTokenSymbol: string;
   humanReadableSummary: string;
@@ -140,6 +141,7 @@ export default function WishChat({ verifiedHuman, onWishConfirmed }: WishChatPro
           
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px' }}>
             <button
+              className={loading ? 'animate-pulse' : ''}
               onClick={() => handleParseWish(inputPrompt)}
               disabled={loading || !inputPrompt.trim()}
               style={{
@@ -153,14 +155,14 @@ export default function WishChat({ verifiedHuman, onWishConfirmed }: WishChatPro
                 color: '#0A0B0F',
                 fontWeight: '600',
                 fontSize: '13px',
-                cursor: 'pointer',
-                opacity: loading || !inputPrompt.trim() ? 0.5 : 1,
-                boxShadow: '0 2px 10px rgba(56, 189, 248, 0.3)',
+                cursor: loading ? 'wait' : 'pointer',
+                opacity: loading || !inputPrompt.trim() ? 0.7 : 1,
+                boxShadow: loading ? '0 0 15px rgba(56, 189, 248, 0.6)' : '0 2px 10px rgba(56, 189, 248, 0.3)',
                 transition: 'all 0.2s ease',
               }}
             >
               {loading ? <RefreshCw className="animate-spin" size={16} /> : <Send size={16} />}
-              <span>Make a Wish</span>
+              <span>{loading ? 'Consulting Oracle...' : 'Make a Wish'}</span>
             </button>
           </div>
         </div>
