@@ -173,7 +173,7 @@ export default function WishCard({
           : isExpired
           ? '4px solid var(--color-text-tertiary)'
           : isCriticalAlert
-          ? '4px solid #EF4444'
+          ? '4px solid var(--color-danger)'
           : '4px solid var(--color-accent-primary)',
         boxShadow: isCriticalAlert
           ? '0 0 25px rgba(239, 68, 68, 0.45)'
@@ -186,7 +186,7 @@ export default function WishCard({
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {isCriticalAlert ? (
-            <ShieldAlert size={20} color="#EF4444" className="animate-pulse" />
+            <ShieldAlert size={20} color="var(--color-danger)" className="animate-pulse" />
           ) : (
             <Sparkles size={16} color={isExpired ? 'var(--color-text-tertiary)' : 'var(--color-accent-primary)'} />
           )}
@@ -213,7 +213,7 @@ export default function WishCard({
               : isExpired
               ? 'var(--color-text-tertiary)'
               : isCriticalAlert
-              ? '#EF4444'
+              ? 'var(--color-danger)'
               : 'var(--color-accent-primary)',
             border: isCriticalAlert ? '1px solid rgba(239, 68, 68, 0.6)' : '1px solid transparent',
             fontWeight: '700',
@@ -257,12 +257,12 @@ export default function WishCard({
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
-            color: '#EF4444',
+            color: 'var(--color-danger)',
             fontSize: '12px',
             fontWeight: '600',
           }}
         >
-          <Cpu className="animate-spin" size={18} color="#EF4444" />
+          <Cpu className="animate-spin" size={18} color="var(--color-danger)" />
           <span>🤖 AI Agent Intercepted Pool Crash! Executing Emergency Panic Sell...</span>
         </div>
       )}
@@ -277,9 +277,9 @@ export default function WishCard({
               flex: 1,
               padding: '8px 12px',
               borderRadius: '8px',
-              border: isSimulatedCrashActive ? '1px solid #EF4444' : '1px solid var(--color-border)',
+              border: isSimulatedCrashActive ? '1px solid var(--color-danger)' : '1px solid var(--color-border)',
               background: isSimulatedCrashActive ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255, 255, 255, 0.03)',
-              color: isSimulatedCrashActive ? '#EF4444' : 'var(--color-text-secondary)',
+              color: isSimulatedCrashActive ? 'var(--color-danger)' : 'var(--color-text-secondary)',
               fontSize: '11px',
               fontWeight: '600',
               cursor: 'pointer',
@@ -289,7 +289,7 @@ export default function WishCard({
               gap: '6px',
             }}
           >
-            <Flame size={14} color={isSimulatedCrashActive ? '#EF4444' : 'var(--color-warning)'} />
+            <Flame size={14} color={isSimulatedCrashActive ? 'var(--color-danger)' : 'var(--color-warning)'} />
             <span>{isSimulatedCrashActive ? '🔥 TVL Crash Active' : '⚡ Simulate 65% TVL Drop (Demo Trigger)'}</span>
           </button>
         </div>

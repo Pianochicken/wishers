@@ -44,43 +44,73 @@ export default function App() {
   const isStep1Complete = Boolean(connectedWalletAddress && verifiedHuman);
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
-      {/* ── Header Bar (Standard Width 540px) ── */}
-      <div style={{ maxWidth: '540px', margin: '0 auto 16px' }}>
-        <header className="glass-card" style={{
-          padding: '16px 20px',
+    <>
+      {/* ── Top Full-Width Header Banner ── */}
+      <header style={{
+        width: '100%',
+        padding: '16px 40px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        background: 'rgba(10, 11, 15, 0.6)',
+        backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+      }}>
+        {/* Main Logo & Title Group */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+          <img
+            src="/logo.png"
+            alt="WISHERS Logo"
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '10px',
+              objectFit: 'cover',
+              boxShadow: '0 0 16px rgba(56, 189, 248, 0.4)',
+              border: '1px solid rgba(224, 231, 255, 0.2)',
+              display: 'block',
+            }}
+          />
+          <div>
+            <h1 style={{
+              fontSize: '18px',
+              fontWeight: '800',
+              letterSpacing: '-0.5px',
+              background: 'var(--color-accent-gradient)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              lineHeight: '1.2',
+            }}>
+              WISHERS
+            </h1>
+            <p style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: '500', margin: 0 }}>
+              Human-Anchored AI Execution Agent
+            </p>
+          </div>
+        </div>
+
+        {/* Online Agent Breathing Badge */}
+        <div style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          gap: '8px',
+          background: 'rgba(255, 255, 255, 0.04)',
+          padding: '6px 14px',
+          borderRadius: '20px',
+          border: '1px solid var(--color-border)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img src="/logo.png" alt="WISHERS Logo" style={{
-              width: '40px', height: '40px', borderRadius: '10px',
-              objectFit: 'cover', boxShadow: '0 0 16px rgba(56, 189, 248, 0.4)',
-            }} />
-            <div>
-              <h1 style={{
-                fontSize: '18px', fontWeight: '700', letterSpacing: '-0.5px',
-                background: 'var(--color-accent-gradient)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-              }}>WISHERS</h1>
-              <p style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
-                Human-Anchored AI Execution Agent
-              </p>
-            </div>
-          </div>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            background: 'rgba(255,255,255,0.04)', padding: '6px 12px',
-            borderRadius: '20px', border: '1px solid var(--color-border)',
-          }}>
-            <div className="agent-breathing-dot"></div>
-            <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--color-text-secondary)' }}>
-              {backendStatus}
-            </span>
-          </div>
-        </header>
-      </div>
+          <div className="agent-breathing-dot"></div>
+          <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text-secondary)' }}>
+            {backendStatus}
+          </span>
+        </div>
+      </header>
+
+      {/* ── Main Content Container ── */}
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '32px 20px 20px' }}>
 
       {/* ── Step 1 Authentication (Standard Width 540px) ── */}
       <div style={{ maxWidth: '540px', margin: '0 auto 4px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -91,7 +121,7 @@ export default function App() {
         />
       </div>
 
-      {/* ── Single Clean Status Pill Badge (Below Hands) ── */}
+      {/* ── Single Clean Status Pill Badge (Below Auth Cards) ── */}
       <div style={{ textAlign: 'center', margin: '16px 0 0px' }}>
         <span style={{
           fontSize: '12px', fontWeight: '600',
@@ -148,5 +178,6 @@ export default function App() {
         </div>
       )}
     </div>
+    </>
   );
 }

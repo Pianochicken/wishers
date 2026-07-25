@@ -197,7 +197,7 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
                   padding: '2px 8px',
                   borderRadius: '10px',
                   background: isCorrectNetwork ? 'rgba(0, 214, 143, 0.15)' : 'rgba(239, 68, 68, 0.2)',
-                  color: isCorrectNetwork ? 'var(--color-success)' : '#EF4444',
+                  color: isCorrectNetwork ? 'var(--color-success)' : 'var(--color-danger)',
                   border: isCorrectNetwork ? '1px solid rgba(0, 214, 143, 0.3)' : '1px solid rgba(239, 68, 68, 0.4)',
                   fontWeight: '700',
                   whiteSpace: 'nowrap',
@@ -207,7 +207,7 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
               </span>
             )}
           </div>
-          <div style={{ fontSize: '11px', color: isCorrectNetwork ? 'var(--color-text-secondary)' : '#EF4444', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div style={{ fontSize: '11px', color: isCorrectNetwork ? 'var(--color-text-secondary)' : 'var(--color-danger)', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {userAddress
               ? isCorrectNetwork
                 ? `${ethBalance || '0.0000'} Base Sepolia ETH`
@@ -230,7 +230,7 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
                   borderRadius: '8px',
                   background: 'rgba(239, 68, 68, 0.2)',
                   border: '1px solid rgba(239, 68, 68, 0.5)',
-                  color: '#EF4444',
+                  color: 'var(--color-danger)',
                   fontWeight: '700',
                   cursor: 'pointer',
                   display: 'flex',
