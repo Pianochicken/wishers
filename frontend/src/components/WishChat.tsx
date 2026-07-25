@@ -15,6 +15,9 @@ export interface ParsedWish {
   createdAt?: number;
   expiresAt?: number;
   durationHours?: number;
+  id?: string;
+  status?: 'PENDING' | 'EXECUTED' | 'FAILED';
+  txHash?: string;
 }
 
 interface WishChatProps {

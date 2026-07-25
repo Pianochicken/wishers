@@ -11,7 +11,6 @@ export default function App() {
   const [verifiedHuman, setVerifiedHuman] = useState<VerifiedHuman | null>(null);
   const [connectedWalletAddress, setConnectedWalletAddress] = useState<string | null>(null);
   const [activeWishList, setActiveWishList] = useState<ParsedWish[]>([]);
-  const [isSimulatedCrashActive, setIsSimulatedCrashActive] = useState<boolean>(false);
   const [activeView, setActiveView] = useState<'wishing' | 'wishes'>('wishing');
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
 
@@ -31,25 +30,26 @@ export default function App() {
       .catch(() => setBackendStatus('Backend Offline'));
   }, []);
 
-  const handleToggleSimulatedCrash = async () => {
-    try {
-      const res = await fetch('/api/debug/simulate-tvl-drop', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ active: !isSimulatedCrashActive }),
-      });
-      const data = await res.json();
-      if (data.status === 'success') {
-        setIsSimulatedCrashActive(data.simulatedCrashActive);
-      }
-    } catch (err) {
-      console.error('Error toggling TVL crash simulation:', err);
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (verifiedHuman) {
+      const fetchWishes = async () => {
+        try {
+          const res = await fetch(`/api/wishes/${verifiedHuman.nullifier}`);
+          const data = await res.json();
+          if (data.status === 'success') {
+            setActiveWishList(data.wishes.sort((a: any, b: any) => b.createdAt - a.createdAt));
+          }
+        } catch (err) {
+          console.error('Failed to poll wishes:', err);
+        }
+      };
+      
+      fetchWishes();
+      interval = setInterval(fetchWishes, 3000);
     }
-  };
-
-  const handleSwapExecuted = (result: any) => {
-    console.log('Swap executed successfully:', result);
-  };
+    return () => clearInterval(interval);
+  }, [verifiedHuman]);
 
   const isStep1Complete = Boolean(connectedWalletAddress && verifiedHuman);
 
@@ -188,14 +188,15 @@ export default function App() {
             <WishChat
               verifiedHuman={verifiedHuman}
               onWishConfirmed={async (confirmedWish) => {
-                // Optimistically update UI
-                setActiveWishList([confirmedWish, ...activeWishList]);
-                switchView('wishes'); // Switch to wishes view automatically
+                // Optimistically update the list so it's not empty during the 3s polling gap
+                setActiveWishList((prev) => [confirmedWish, ...prev]);
+                // Switch view with smooth transition
+                switchView('wishes');
               
               // Send to backend Agent Poller
               if (verifiedHuman) {
                 try {
-                  await fetch('/api/wishes', {
+                  const res = await fetch('/api/wishes', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -203,6 +204,14 @@ export default function App() {
                       wish: confirmedWish,
                     }),
                   });
+                  const data = await res.json();
+                  if (data.status === 'success') {
+                    // Update immediately with the real backend wish (which has the ID)
+                    setActiveWishList((prev) => {
+                      const filtered = prev.filter(w => w !== confirmedWish);
+                      return [data.wish, ...filtered].sort((a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0));
+                    });
+                  }
                   console.log('✅ Wish successfully submitted to Agent Poller!');
                 } catch (err) {
                   console.error('❌ Failed to submit wish to backend:', err);
@@ -236,9 +245,6 @@ export default function App() {
                   wish={wish}
                   verifiedHuman={verifiedHuman}
                   connectedWalletAddress={connectedWalletAddress}
-                  onSwapExecuted={handleSwapExecuted}
-                  isSimulatedCrashActive={isSimulatedCrashActive}
-                  onToggleSimulatedCrash={handleToggleSimulatedCrash}
                 />
               ))}
             </div>

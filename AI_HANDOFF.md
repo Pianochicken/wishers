@@ -41,6 +41,7 @@
    - ✅ **World ID**: Frontend Gate implemented, Agent Wallet delegation prepared.
    - ✅ **The Graph**: Completely replaced mock monitors with exact GraphQL metric tracking (`token0Price`, `totalValueLockedUSD`) on Base Sepolia.
    - ✅ **Uniswap**: Integrated authentic automatic trade routing, quotes, and dynamic token mapping (`WETH`, `USDC`) via `executeEmergencySwap`.
+   - ✅ **True State Sync**: Replaced frontend mock execution buttons with live backend polling (`/api/wishes/:nullifier`). `WishCard` now automatically reacts to Agent Poller executions and displays real TxHashes linking to BaseScan.
 3. **Phase 7 (Monorepo MCP Server)**: Standalone Open-Source MCP Server in `packages/wishers-mcp-server-thegraph`.
 4. **Phase 8 (Final Submission Package)**: `README.md`, `AI_ATTRIBUTION.md`, `FEEDBACK.md`, and end-to-end verification.
 

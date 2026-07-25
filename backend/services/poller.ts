@@ -80,7 +80,7 @@ export function startAgentPolling(intervalMs: number = 30000) {
             console.log(`✅ [Agent Poller] Emergency Swap Executed! TxHash: ${realTxHash}`);
             console.log(`🔗 [Agent Poller] View on Basescan: https://sepolia.basescan.org/tx/${realTxHash}`);
             // Mark wish as executed so we don't trigger it again
-            updateWishStatus(wish.id, 'EXECUTED');
+            updateWishStatus(wish.id, 'EXECUTED', realTxHash);
           } else {
             console.log(`❌ [Agent Poller] Emergency Swap Failed. Will retry next tick.`);
           }

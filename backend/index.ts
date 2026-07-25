@@ -9,7 +9,7 @@ import uniswapRouter from './routes/uniswap';
 import debugRouter from './routes/debug';
 import thegraphRouter from './routes/thegraph';
 import { startAgentPolling } from './services/poller.js';
-import { addWish, getPendingWishes } from './services/wishes.js';
+import { addWish, getPendingWishes, getAllWishesForHuman } from './services/wishes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -57,6 +57,10 @@ app.post('/api/wishes', (req: Request, res: Response) => {
 
 app.get('/api/wishes', (req: Request, res: Response) => {
   res.json({ status: 'success', activeWishes: getPendingWishes() });
+});
+
+app.get('/api/wishes/:nullifierHash', (req: Request, res: Response) => {
+  res.json({ status: 'success', wishes: getAllWishesForHuman(req.params.nullifierHash) });
 });
 
 // Healthcheck Route
