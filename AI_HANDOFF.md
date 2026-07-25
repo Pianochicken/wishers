@@ -33,8 +33,12 @@
 
 ## 🚀 Next Steps (Updated Phase Roadmap)
 1. **User Custom Adjustments & Polish**: Address all user preferences and UI/UX fine-tuning.
-2. **Phase 6 (Monorepo MCP Server)**: Standalone Open-Source MCP Server in `packages/wishers-mcp-server-thegraph`.
-3. **Phase 7 (Final Submission Package)**: `README.md`, `AI_ATTRIBUTION.md`, and end-to-end verification.
+2. **Phase 6 (Real Protocol Integrations)**:
+   - **World ID**: Implement real backend ZKP verification with the Worldcoin Developer Portal API.
+   - **The Graph**: Replace mock TVL monitor with actual on-chain Subgraph queries.
+   - **Uniswap**: Integrate real automatic trade routing and quote fetching.
+3. **Phase 7 (Monorepo MCP Server)**: Standalone Open-Source MCP Server in `packages/wishers-mcp-server-thegraph`.
+4. **Phase 8 (Final Submission Package)**: `README.md`, `AI_ATTRIBUTION.md`, and end-to-end verification.
 
 ## 📂 Architecture Reference
 - **Frontend**: React + Vite (Vanilla CSS / Tailwind)
