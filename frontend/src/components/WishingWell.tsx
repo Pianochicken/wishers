@@ -9,17 +9,8 @@ interface WishingWellProps {
 }
 
 export default function WishingWell({ parsedWish, onCancel, onConfirmWish }: WishingWellProps) {
-  const [tossing, setTossing] = useState(false);
-
   if (!parsedWish) return null;
 
-  const handleTossCoin = () => {
-    setTossing(true);
-    setTimeout(() => {
-      setTossing(false);
-      onConfirmWish(parsedWish);
-    }, 1400); // 1.4s coin tossing parabolic arc & water ripple animation
-  };
 
   return (
     <div style={{ padding: '28px', position: 'relative', overflowY: 'auto', overflowX: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -32,21 +23,7 @@ export default function WishingWell({ parsedWish, onCancel, onConfirmWish }: Wis
         {/* 3D Wishing Well & Coin Animation Arena */}
         <div style={{ textAlign: 'center', marginBottom: '20px', position: 'relative' }}>
           
-          {/* Cyberpunk Water Ripples */}
-          {tossing && (
-            <>
-              <div className="well-ripple-active" style={{ animationDelay: '0s' }}></div>
-              <div className="well-ripple-active" style={{ animationDelay: '0.4s' }}></div>
-              <div className="well-ripple-active" style={{ animationDelay: '0.8s' }}></div>
-            </>
-          )}
 
-          {/* Glowing 3D Gold Coin Icon */}
-          <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '64px', height: '64px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,215,0,0.25) 0%, rgba(56,189,248,0.12) 100%)', border: '2px solid #FFD700', marginBottom: '12px', boxShadow: '0 0 20px rgba(255, 215, 0, 0.4)' }}>
-            <div className={tossing ? 'coin-tossing-active' : ''}>
-              <Coins size={32} color="#FFD700" />
-            </div>
-          </div>
 
           <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>Confirm Your Wish</h3>
         </div>
@@ -72,10 +49,6 @@ export default function WishingWell({ parsedWish, onCancel, onConfirmWish }: Wis
             </span>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px solid var(--color-border)' }}>
-            <span style={{ color: 'var(--color-text-secondary)' }}>Integrator Fee:</span>
-            <span style={{ fontWeight: '500', color: 'var(--color-text-primary)' }}>0.1% (Sponsor Buyback)</span>
-          </div>
         </div>
 
         {/* Human Readable Summary */}
@@ -89,9 +62,9 @@ export default function WishingWell({ parsedWish, onCancel, onConfirmWish }: Wis
           <button onClick={onCancel} style={{ flex: 1, padding: '12px', borderRadius: '12px', background: 'transparent', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)', fontWeight: '600', cursor: 'pointer' }}>
             Edit Wish
           </button>
-          <button className="btn-primary" onClick={handleTossCoin} disabled={tossing} style={{ flex: 1.5, justifyContent: 'center' }}>
-            <span>{tossing ? 'Tossing Coin...' : 'Toss Coin & Lock Wish'}</span>
-            {!tossing && <ArrowRight size={16} />}
+          <button className="btn-primary" onClick={() => onConfirmWish(parsedWish)} style={{ flex: 1.5, justifyContent: 'center' }}>
+            <span>Execute Wish</span>
+            <ArrowRight size={16} />
           </button>
         </div>
     </div>

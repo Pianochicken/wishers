@@ -24,7 +24,7 @@ export const TOKEN_ADDRESSES: Record<string, { address: string; name: string; is
 
 /**
  * POST /api/uniswap/quote
- * Fetches swap quote and 0.1% integrator fee breakdown via Uniswap Trading API v1 REST gateway
+ * Fetches swap quote via Uniswap Trading API v1 REST gateway
  */
 router.post('/quote', async (req: Request, res: Response) => {
   try {

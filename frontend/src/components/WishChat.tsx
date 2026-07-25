@@ -29,7 +29,7 @@ export default function WishChat({ verifiedHuman, onWishConfirmed }: WishChatPro
   const [inputPrompt, setInputPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const [parsedWish, setParsedWish] = useState<ParsedWish | null>(null);
-
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
 
   const handleParseWish = async (promptText: string) => {
@@ -73,6 +73,7 @@ export default function WishChat({ verifiedHuman, onWishConfirmed }: WishChatPro
         display: 'grid',
         perspective: '1200px',
         width: '100%',
+        animation: isConfirmed ? 'fadeOutUp 0.8s forwards cubic-bezier(0.16, 1, 0.3, 1)' : undefined,
       }}>
         
         {/* FRONT FACE (Chat Input) */}
@@ -173,9 +174,8 @@ export default function WishChat({ verifiedHuman, onWishConfirmed }: WishChatPro
               parsedWish={parsedWish}
               onCancel={() => setParsedWish(null)}
               onConfirmWish={(wish) => {
-                setParsedWish(null);
-                setInputPrompt(''); // clear input after confirm
-                setTimeout(() => onWishConfirmed(wish), 400); // Add to active wishes midway through flip
+                setIsConfirmed(true);
+                onWishConfirmed(wish);
               }}
             />
           )}

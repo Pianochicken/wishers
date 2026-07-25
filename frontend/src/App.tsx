@@ -13,6 +13,7 @@ export default function App() {
   const [activeWishList, setActiveWishList] = useState<ParsedWish[]>([]);
   const [activeView, setActiveView] = useState<'wishing' | 'wishes'>('wishing');
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
+  const [isHandsOpen, setIsHandsOpen] = useState<boolean>(false);
 
   const switchView = (targetView: 'wishing' | 'wishes') => {
     if (targetView === activeView || isTransitioning) return;
@@ -52,6 +53,12 @@ export default function App() {
   }, [verifiedHuman]);
 
   const isStep1Complete = Boolean(connectedWalletAddress && verifiedHuman);
+
+  React.useEffect(() => {
+    if (isStep1Complete && activeView === 'wishing') {
+      setIsHandsOpen(true);
+    }
+  }, [isStep1Complete, activeView]);
 
   return (
     <>
@@ -184,14 +191,18 @@ export default function App() {
           : 'fadeInUp 0.3s forwards cubic-bezier(0.16, 1, 0.3, 1)'
       }}>
         {activeView === 'wishing' ? (
-          <PrayingHands isOpen={isStep1Complete}>
+          <PrayingHands isOpen={isHandsOpen}>
             <WishChat
               verifiedHuman={verifiedHuman}
               onWishConfirmed={async (confirmedWish) => {
                 // Optimistically update the list so it's not empty during the 3s polling gap
                 setActiveWishList((prev) => [confirmedWish, ...prev]);
-                // Switch view with smooth transition
-                switchView('wishes');
+                
+                // Let the hands close and card fly up before switching view
+                setIsHandsOpen(false);
+                setTimeout(() => {
+                  switchView('wishes');
+                }, 800);
               
               // Send to backend Agent Poller
               if (verifiedHuman) {
