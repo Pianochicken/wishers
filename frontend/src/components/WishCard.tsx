@@ -153,7 +153,7 @@ export default function WishCard({
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'var(--color-success)', fontWeight: '600' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <CheckCircle2 size={14} />
-              <span>Shield Protected & Swapped by Agent</span>
+              <span>Transaction executed automatically by Agent</span>
             </div>
             <a
               href={`https://worldscan.org/tx/${wish.txHash}`}
@@ -167,9 +167,6 @@ export default function WishCard({
           </div>
           <div style={{ color: 'var(--color-text-secondary)', fontSize: '11px' }}>
             TxHash: <code style={{ color: 'var(--color-text-primary)' }}>{wish.txHash.substring(0, 18)}...</code>
-          </div>
-          <div style={{ color: 'var(--color-text-secondary)', fontSize: '11px' }}>
-            Transaction executed automatically by WISHERS Agent.
           </div>
         </div>
       ) : isExpired && !isExecuted ? (

@@ -46,6 +46,9 @@ export default function App() {
       
       fetchWishes();
       interval = setInterval(fetchWishes, 3000);
+    } else {
+      setActiveWishList([]);
+      setActiveView('wishing');
     }
     return () => clearInterval(interval);
   }, [verifiedHuman]);

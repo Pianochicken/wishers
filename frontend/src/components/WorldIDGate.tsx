@@ -130,7 +130,7 @@ export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGatePr
               </span>
             </div>
             <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '4px', wordBreak: 'break-all' }}>
-              Agent: <code style={{ color: 'var(--color-text-primary)', userSelect: 'all' }}>{verifiedHuman.agentWallet}</code>
+              Agent: <a href={`https://worldscan.org/address/${verifiedHuman.agentWallet}`} target="_blank" rel="noreferrer" style={{ color: 'var(--color-text-primary)', textDecoration: 'none' }}><code style={{ color: 'inherit', userSelect: 'all', transition: 'opacity 0.2s' }} onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'} onMouseOut={(e) => e.currentTarget.style.opacity = '1'}>{verifiedHuman.agentWallet}</code></a>
             </div>
           </div>
         </div>
