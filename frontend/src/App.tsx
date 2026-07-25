@@ -13,6 +13,16 @@ export default function App() {
   const [activeWishList, setActiveWishList] = useState<ParsedWish[]>([]);
   const [isSimulatedCrashActive, setIsSimulatedCrashActive] = useState<boolean>(false);
   const [activeView, setActiveView] = useState<'wishing' | 'wishes'>('wishing');
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
+
+  const switchView = (targetView: 'wishing' | 'wishes') => {
+    if (targetView === activeView || isTransitioning) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setActiveView(targetView);
+      setIsTransitioning(false);
+    }, 300); // match animation duration
+  };
 
   useEffect(() => {
     fetch('/api/health')
@@ -95,7 +105,7 @@ export default function App() {
         {/* Active Wishes Tab */}
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <button
-            onClick={() => setActiveView(activeView === 'wishing' ? 'wishes' : 'wishing')}
+            onClick={() => switchView(activeView === 'wishing' ? 'wishes' : 'wishing')}
             style={{
               padding: '8px 16px',
               borderRadius: '20px',
@@ -127,6 +137,17 @@ export default function App() {
         </div>
       </header>
 
+      <style>{`
+        @keyframes fadeOutDown {
+          from { opacity: 1; transform: translateY(0); }
+          to { opacity: 0; transform: translateY(20px); }
+        }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+
       {/* ── Main Content Container ── */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 20px 20px' }}>
 
@@ -157,14 +178,19 @@ export default function App() {
       </div>
 
       {/* ── Main Content Area (Conditional View) ── */}
-      {activeView === 'wishing' ? (
-        <PrayingHands isOpen={isStep1Complete}>
-          <WishChat
-            verifiedHuman={verifiedHuman}
-            onWishConfirmed={async (confirmedWish) => {
-              // Optimistically update UI
-              setActiveWishList([confirmedWish, ...activeWishList]);
-              setActiveView('wishes'); // Switch to wishes view automatically
+      <div style={{
+        animation: isTransitioning 
+          ? 'fadeOutDown 0.3s forwards ease-in-out' 
+          : 'fadeInUp 0.3s forwards cubic-bezier(0.16, 1, 0.3, 1)'
+      }}>
+        {activeView === 'wishing' ? (
+          <PrayingHands isOpen={isStep1Complete}>
+            <WishChat
+              verifiedHuman={verifiedHuman}
+              onWishConfirmed={async (confirmedWish) => {
+                // Optimistically update UI
+                setActiveWishList([confirmedWish, ...activeWishList]);
+                switchView('wishes'); // Switch to wishes view automatically
               
               // Send to backend Agent Poller
               if (verifiedHuman) {
@@ -195,7 +221,7 @@ export default function App() {
               You have no active wishes monitoring the blockchain.
               <br/><br/>
               <button 
-                onClick={() => setActiveView('wishing')} 
+                onClick={() => switchView('wishing')} 
                 className="btn-primary" 
                 style={{ padding: '8px 24px', borderRadius: '20px', fontSize: '13px' }}
               >
@@ -219,6 +245,7 @@ export default function App() {
           )}
         </div>
       )}
+      </div>
 
     </div>
     </>

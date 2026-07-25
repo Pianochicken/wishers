@@ -36,7 +36,7 @@
 ---
 
 ## 🚀 Next Steps (Updated Phase Roadmap)
-1. ✅ **User Custom Adjustments & Polish**: Adjusted Authentication cards to side-by-side equal-width Grid. Implemented Tab-based switching view for Active Wishes instead of floating header cards.
+1. ✅ **User Custom Adjustments & Polish**: Adjusted Authentication cards to side-by-side equal-width Grid. Implemented Tab-based switching view for Active Wishes with smooth fade-in/fade-out CSS transitions.
 2. **Phase 6 (Real Protocol Integrations)**:
    - ✅ **World ID**: Frontend Gate implemented, Agent Wallet delegation prepared.
    - ✅ **The Graph**: Completely replaced mock monitors with exact GraphQL metric tracking (`token0Price`, `totalValueLockedUSD`) on Base Sepolia.
