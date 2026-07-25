@@ -7,7 +7,7 @@ interface PrayingHandsProps {
 
 export default function PrayingHands({ isOpen, children }: PrayingHandsProps) {
   const handTransition = 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
-  const handWidth = 140;
+  const handWidth = 200;
 
   return (
     <div style={{ position: 'relative', padding: '16px 0', width: '100%', overflow: 'visible' }}>
@@ -25,7 +25,7 @@ export default function PrayingHands({ isOpen, children }: PrayingHandsProps) {
         {/* Left Hand Image */}
         <div style={{
           position: 'absolute',
-          left: isOpen ? '0px' : 'calc(50% - 140px)',
+          left: isOpen ? '-100px' : 'calc(50% - 200px)',
           top: '0',
           transition: handTransition,
           pointerEvents: 'none',
@@ -48,7 +48,7 @@ export default function PrayingHands({ isOpen, children }: PrayingHandsProps) {
         {isOpen && (
           <div className="sacred-portal-expanded" style={{
             width: '100%',
-            padding: `0 ${handWidth + 10}px`,
+            padding: `0 ${handWidth - 100 + 10}px`,
             zIndex: 1,
           }}>
             {children}
@@ -58,7 +58,7 @@ export default function PrayingHands({ isOpen, children }: PrayingHandsProps) {
         {/* Right Hand Image */}
         <div style={{
           position: 'absolute',
-          right: isOpen ? '0px' : 'calc(50% - 140px)',
+          right: isOpen ? '-100px' : 'calc(50% - 200px)',
           top: '0',
           transition: handTransition,
           pointerEvents: 'none',

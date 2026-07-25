@@ -22,10 +22,9 @@ export default function WishingWell({ parsedWish, onCancel, onConfirmWish }: Wis
   };
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(10, 11, 15, 0.88)', backdropFilter: 'blur(16px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-      <div className="glass-card" style={{ maxWidth: '440px', width: '100%', padding: '28px', border: '1px solid var(--color-border-active)', boxShadow: '0 0 50px rgba(56, 189, 248, 0.2)', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ padding: '28px', position: 'relative', overflowY: 'auto', overflowX: 'hidden', height: '100%', display: 'flex', flexDirection: 'column' }}>
         
-        {/* Close Button */}
+        {/* Close Button / Cancel Flip */}
         <button onClick={onCancel} style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: 'var(--color-text-tertiary)', cursor: 'pointer', zIndex: 10 }}>
           <X size={20} />
         </button>
@@ -49,8 +48,7 @@ export default function WishingWell({ parsedWish, onCancel, onConfirmWish }: Wis
             </div>
           </div>
 
-          <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>Confirm Your Financial Wish</h3>
-          <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>Review parameters before tossing your 3D Wish Coin into the well</p>
+          <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>Confirm Your Wish</h3>
         </div>
 
         {/* Parsed Parameters Card */}
@@ -83,7 +81,7 @@ export default function WishingWell({ parsedWish, onCancel, onConfirmWish }: Wis
         {/* Human Readable Summary */}
         <div style={{ background: 'rgba(56, 189, 248, 0.08)', borderRadius: '10px', padding: '12px', border: '1px solid rgba(56, 189, 248, 0.2)', marginBottom: '24px', fontSize: '12px', color: 'var(--color-accent-glow)', lineHeight: '1.5', display: 'flex', gap: '8px' }}>
           <Sparkles size={16} color="var(--color-accent-primary)" style={{ flexShrink: 0, marginTop: '2px' }} />
-          <span>"{parsedWish.humanReadableSummary}"</span>
+          <span style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>"{parsedWish.humanReadableSummary}"</span>
         </div>
 
         {/* Action Buttons */}
@@ -96,7 +94,6 @@ export default function WishingWell({ parsedWish, onCancel, onConfirmWish }: Wis
             {!tossing && <ArrowRight size={16} />}
           </button>
         </div>
-      </div>
     </div>
   );
 }

@@ -3,14 +3,13 @@ import WorldIDGate, { VerifiedHuman } from './components/WorldIDGate';
 import WalletConnect from './components/WalletConnect';
 import PrayingHands from './components/PrayingHands';
 import WishChat, { ParsedWish } from './components/WishChat';
-import WishingWell from './components/WishingWell';
+
 import WishCard from './components/WishCard';
 
 export default function App() {
   const [backendStatus, setBackendStatus] = useState<string>('checking...');
   const [verifiedHuman, setVerifiedHuman] = useState<VerifiedHuman | null>(null);
   const [connectedWalletAddress, setConnectedWalletAddress] = useState<string | null>(null);
-  const [activeParsedWish, setActiveParsedWish] = useState<ParsedWish | null>(null);
   const [activeWishList, setActiveWishList] = useState<ParsedWish[]>([]);
   const [isSimulatedCrashActive, setIsSimulatedCrashActive] = useState<boolean>(false);
 
@@ -142,21 +141,15 @@ export default function App() {
       <PrayingHands isOpen={isStep1Complete}>
         <WishChat
           verifiedHuman={verifiedHuman}
-          onWishParsed={(wish) => setActiveParsedWish(wish)}
+          onWishConfirmed={(confirmedWish) => {
+            setActiveWishList([confirmedWish, ...activeWishList]);
+          }}
         />
       </PrayingHands>
 
-      {/* ── Active Wishes & Coin Tossing Modal (Standard Width 540px) ── */}
+      {/* ── Active Wishes Monitoring Cards (Standard Width 540px) ── */}
       {isStep1Complete && (
         <div style={{ maxWidth: '540px', margin: '0 auto' }}>
-          <WishingWell
-            parsedWish={activeParsedWish}
-            onCancel={() => setActiveParsedWish(null)}
-            onConfirmWish={(confirmedWish) => {
-              setActiveWishList([confirmedWish, ...activeWishList]);
-              setActiveParsedWish(null);
-            }}
-          />
           {activeWishList.length > 0 && (
             <div style={{ marginTop: '24px' }}>
               <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px' }}>
