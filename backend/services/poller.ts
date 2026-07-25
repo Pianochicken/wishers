@@ -24,9 +24,9 @@ export function startAgentPolling(intervalMs: number = 30000) {
 
     for (const wish of activeWishes) {
       try {
-        // We use a REAL Uniswap V3 Pool address from Base Sepolia testnet!
-        // This is the WETH/OSWALD pool which has a valid token0Price (0x92be73df60f4690466591ec8cc22ab4043cce1ea)
-        const poolAddress = '0x92be73df60f4690466591ec8cc22ab4043cce1ea'; // Replace with actual address or derive it
+        // We use a REAL Uniswap V3 Pool address from Ethereum Mainnet!
+        // This is the massive USDC/WETH 0.05% pool (0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640)
+        const poolAddress = '0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640';
 
         const metrics = await getPoolMetrics(poolAddress);
         

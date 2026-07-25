@@ -60,7 +60,7 @@ app.get('/api/wishes', (req: Request, res: Response) => {
 });
 
 app.get('/api/wishes/:nullifierHash', (req: Request, res: Response) => {
-  res.json({ status: 'success', wishes: getAllWishesForHuman(req.params.nullifierHash) });
+  res.json({ status: 'success', wishes: getAllWishesForHuman(req.params.nullifierHash as string) });
 });
 
 // Healthcheck Route

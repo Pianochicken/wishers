@@ -7,9 +7,6 @@ interface WishCardProps {
   wish: ParsedWish;
   verifiedHuman: VerifiedHuman | null;
   connectedWalletAddress: string | null;
-  onSwapExecuted: (result: any) => void;
-  isSimulatedCrashActive: boolean;
-  onToggleSimulatedCrash: () => void;
 }
 
 export default function WishCard({

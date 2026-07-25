@@ -11,18 +11,6 @@ export interface PoolMetrics {
   timestamp: string;
 }
 
-// Dev Trigger State Switch for Instant Demo Testing
-let simulatedCrashActive = false;
-
-export function setSimulatedTvlCrash(active: boolean) {
-  simulatedCrashActive = active;
-  console.log(`⚠️ [Dev Switch] Simulated Crash Trigger is now: ${active ? 'ACTIVE 🔥' : 'OFF 🟢'}`);
-}
-
-export function getSimulatedTvlCrashState() {
-  return simulatedCrashActive;
-}
-
 import { fetchPoolTVL } from './thegraph.js';
 
 /**
@@ -34,43 +22,26 @@ export async function getPoolMetrics(poolAddress: string): Promise<PoolMetrics> 
     const pool = await fetchPoolTVL(poolAddress);
     
     // Use the real data from the subgraph!
-    const basePrice = parseFloat(pool.token0Price || '1.0');
-    let baseTvl = parseFloat(pool.totalValueLockedUSD || '0');
-    
-    if (baseTvl === 0) {
-      // In testnet, TVL USD might be 0 due to missing price oracles. 
-      // We inject a realistic base TVL for demonstration so the math works!
-      baseTvl = 2500000;
-    }
-    
-    // If Dev Trigger is pulled, simulate a sudden 65% Drop across both metrics!
-    const currentPrice = simulatedCrashActive ? basePrice * 0.35 : basePrice;
-    const currentTvl = simulatedCrashActive ? baseTvl * 0.35 : baseTvl;
+    const basePrice = parseFloat(pool.token0Price || '0');
+    const baseTvl = parseFloat(pool.totalValueLockedUSD || '0');
 
     return {
       poolAddress,
       token0Symbol: pool.token0.symbol,
       token1Symbol: pool.token1.symbol,
-      currentPrice,
-      currentTvlUsd: currentTvl,
+      currentPrice: basePrice,
+      currentTvlUsd: baseTvl,
       timestamp: new Date().toISOString(),
     };
   } catch (err: any) {
-    console.log(`📡 [The Graph] Subgraph pool data unavailable for ${poolAddress}. Gracefully falling back to Local DEX Simulation Engine...`);
-    
-    const basePrice = 1.0;
-    const baseTvl = 2500000;
-  
-    // If Dev Trigger is pulled, simulate a sudden 65% drop
-    const currentPrice = simulatedCrashActive ? basePrice * 0.35 : basePrice;
-    const currentTvl = simulatedCrashActive ? baseTvl * 0.35 : baseTvl;
-  
+    console.log(`📡 [The Graph] Subgraph pool data unavailable for ${poolAddress}. Error: ${err.message}`);
+    // Return safe fallback 0 values so the poller doesn't crash, but conditions won't meet falsely
     return {
       poolAddress,
       token0Symbol: 'ETH',
       token1Symbol: 'USDC',
-      currentPrice,
-      currentTvlUsd: currentTvl,
+      currentPrice: 0,
+      currentTvlUsd: 0,
       timestamp: new Date().toISOString(),
     };
   }

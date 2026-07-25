@@ -39,7 +39,7 @@
 1. ✅ **User Custom Adjustments & Polish**: Adjusted Authentication cards to side-by-side equal-width Grid. Implemented Tab-based switching view for Active Wishes with smooth fade-in/fade-out CSS transitions.
 2. **Phase 6 (Real Protocol Integrations)**:
    - ✅ **World ID**: Frontend Gate implemented, Agent Wallet delegation prepared.
-   - ✅ **The Graph**: Completely replaced mock monitors with exact GraphQL metric tracking (`token0Price`, `totalValueLockedUSD`) on Base Sepolia.
+   - ✅ **The Graph**: Upgraded to query the massive Ethereum Mainnet Uniswap V3 Subgraph (USDC/WETH) for real-world TVL USD and Price tracking, removing the need for testnet mock data.
    - ✅ **Uniswap**: Integrated authentic automatic trade routing, quotes, and dynamic token mapping (`WETH`, `USDC`) via `executeEmergencySwap`.
    - ✅ **True State Sync**: Replaced frontend mock execution buttons with live backend polling (`/api/wishes/:nullifier`). `WishCard` now automatically reacts to Agent Poller executions and displays real TxHashes linking to BaseScan.
 3. **Phase 7 (Monorepo MCP Server)**: Standalone Open-Source MCP Server in `packages/wishers-mcp-server-thegraph`.
