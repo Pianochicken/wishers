@@ -5,8 +5,7 @@
   "type": "module",
   "workspaces": [
     "frontend",
-    "backend",
-    "packages/*"
+    "backend"
   ],
   "scripts": {
     "dev": "concurrently -k \"npm:dev:backend\" \"npm:dev:frontend\"",

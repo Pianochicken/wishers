@@ -8,9 +8,9 @@
 # AI Session Handoff & Progress Log (WISHERS)
 
 ## 📌 Current Focus & Phase
-- **Active Phase**: Phase 5 in Progress (Sub-Step 5.1 & 5.2 Complete: The Graph TVL Monitoring Service & Dev Trigger Switch)
+- **Active Phase**: Phase 8 Completed (AgentKit Integration)
 - **Branch**: `develop`
-- **Build Status**: `npm run typecheck` Passed (0 errors) | `npm run build` Passed (All 3 Workspaces)
+- **Build Status**: `npm run typecheck` Passed (0 errors) | `npm run build` Passed (All Workspaces)
 
 ---
 
@@ -46,8 +46,7 @@
    - ✅ **The Graph**: Upgraded to query the massive Ethereum Mainnet Uniswap V3 Subgraph (USDC/WETH) for real-world TVL USD and Price tracking, removing the need for testnet mock data.
    - ✅ **Uniswap**: Integrated authentic automatic trade routing, quotes, and dynamic token mapping (`WETH`, `USDC`) via `executeEmergencySwap`.
    - ✅ **True State Sync**: Replaced frontend mock execution buttons with live backend polling (`/api/wishes/:nullifier`). `WishCard` now automatically reacts to Agent Poller executions and displays real TxHashes linking to BaseScan.
-3. **Phase 7 (Monorepo MCP Server)**: Standalone Open-Source MCP Server in `packages/wishers-mcp-server-thegraph`.
-4. **Phase 8 (Final Submission Package)**: `README.md`, `AI_ATTRIBUTION.md`, `FEEDBACK.md`, and end-to-end verification.
+3. **Phase 8 (Final Submission Package)**: `README.md`, `AI_ATTRIBUTION.md`, `FEEDBACK.md`, and end-to-end verification.
 
 ## 📂 Architecture Reference
 - **Frontend**: React + Vite (Vanilla CSS / Tailwind)
