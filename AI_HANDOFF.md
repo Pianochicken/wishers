@@ -35,7 +35,7 @@
 1. **User Custom Adjustments & Polish**: Address all user preferences and UI/UX fine-tuning.
 2. **Phase 6 (Real Protocol Integrations)**:
    - **World ID**: Implement real backend ZKP verification with the Worldcoin Developer Portal API.
-   - **The Graph**: Replace mock TVL monitor with actual on-chain Subgraph queries.
+   - ✅ **The Graph**: Replaced mock TVL monitor with actual on-chain Subgraph queries via `backend/services/thegraph.ts` and `GET /api/thegraph/pool/:address`.
    - **Uniswap**: Integrate real automatic trade routing and quote fetching.
 3. **Phase 7 (Monorepo MCP Server)**: Standalone Open-Source MCP Server in `packages/wishers-mcp-server-thegraph`.
 4. **Phase 8 (Final Submission Package)**: `README.md`, `AI_ATTRIBUTION.md`, and end-to-end verification.

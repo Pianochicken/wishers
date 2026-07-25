@@ -7,6 +7,7 @@ import authRouter from './routes/auth';
 import aiRouter from './routes/ai';
 import uniswapRouter from './routes/uniswap';
 import debugRouter from './routes/debug';
+import thegraphRouter from './routes/thegraph';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,6 +37,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/ai', aiRouter);
 app.use('/api/uniswap', uniswapRouter);
 app.use('/api/debug', debugRouter);
+app.use('/api/thegraph', thegraphRouter);
 
 // Healthcheck Route
 app.get('/api/health', (req: Request, res: Response) => {
