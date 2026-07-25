@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import WorldIDGate, { VerifiedHuman } from './components/WorldIDGate';
 import WalletConnect from './components/WalletConnect';
+import PrayingHands from './components/PrayingHands';
 import WishChat, { ParsedWish } from './components/WishChat';
 import WishingWell from './components/WishingWell';
 import WishCard from './components/WishCard';
-import FlywheelHub from './components/FlywheelHub';
 
 export default function App() {
   const [backendStatus, setBackendStatus] = useState<string>('checking...');
@@ -12,7 +12,6 @@ export default function App() {
   const [connectedWalletAddress, setConnectedWalletAddress] = useState<string | null>(null);
   const [activeParsedWish, setActiveParsedWish] = useState<ParsedWish | null>(null);
   const [activeWishList, setActiveWishList] = useState<ParsedWish[]>([]);
-  const [totalFeesCollectedEth, setTotalFeesCollectedEth] = useState<number>(0.00015);
   const [isSimulatedCrashActive, setIsSimulatedCrashActive] = useState<boolean>(false);
 
   useEffect(() => {
@@ -39,60 +38,87 @@ export default function App() {
   };
 
   const handleSwapExecuted = (result: any) => {
-    // Accumulate 0.1% fee
-    setTotalFeesCollectedEth((prev) => prev + 0.00005);
+    console.log('Swap executed successfully:', result);
   };
 
-  // Step 1 Onboarding Guard: Is the user fully authenticated with both Web3 Wallet & World ID?
   const isStep1Complete = Boolean(connectedWalletAddress && verifiedHuman);
 
   return (
-    <div style={{ maxWidth: '480px', margin: '0 auto', padding: '20px' }}>
-      {/* Header Bar */}
-      <header className="glass-card" style={{ padding: '16px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src="/logo.png" alt="WISHERS Logo" style={{ width: '38px', height: '38px', borderRadius: '10px', objectFit: 'cover', boxShadow: '0 0 12px rgba(56, 189, 248, 0.3)' }} />
-          <div>
-            <h1 style={{ fontSize: '18px', fontWeight: '700', letterSpacing: '-0.5px', background: 'var(--color-accent-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              WISHERS
-            </h1>
-            <p style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>Human-Anchored AI Execution Agent</p>
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
+      {/* ── Header Bar (Standard Width 540px) ── */}
+      <div style={{ maxWidth: '540px', margin: '0 auto 16px' }}>
+        <header className="glass-card" style={{
+          padding: '16px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img src="/logo.png" alt="WISHERS Logo" style={{
+              width: '40px', height: '40px', borderRadius: '10px',
+              objectFit: 'cover', boxShadow: '0 0 16px rgba(56, 189, 248, 0.4)',
+            }} />
+            <div>
+              <h1 style={{
+                fontSize: '18px', fontWeight: '700', letterSpacing: '-0.5px',
+                background: 'var(--color-accent-gradient)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+              }}>WISHERS</h1>
+              <p style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
+                Human-Anchored AI Execution Agent
+              </p>
+            </div>
           </div>
-        </div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            background: 'rgba(255,255,255,0.04)', padding: '6px 12px',
+            borderRadius: '20px', border: '1px solid var(--color-border)',
+          }}>
+            <div className="agent-breathing-dot"></div>
+            <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--color-text-secondary)' }}>
+              {backendStatus}
+            </span>
+          </div>
+        </header>
+      </div>
 
-        {/* Breathing Status Indicator */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.04)', padding: '6px 12px', borderRadius: '20px', border: '1px solid var(--color-border)' }}>
-          <div className="agent-breathing-dot"></div>
-          <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--color-text-secondary)' }}>
-            {backendStatus}
-          </span>
-        </div>
-      </header>
-
-      {/* Step 1: Web3 Wallet Connection Component */}
-      <WalletConnect onWalletConnected={(addr) => setConnectedWalletAddress(addr)} />
-
-      {/* Step 1: World ID Verification Gate */}
-      <div style={{ marginBottom: '24px' }}>
+      {/* ── Step 1 Authentication (Standard Width 540px) ── */}
+      <div style={{ maxWidth: '540px', margin: '0 auto 4px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <WalletConnect onWalletConnected={(addr) => setConnectedWalletAddress(addr)} />
         <WorldIDGate
           verifiedHuman={verifiedHuman}
           onVerified={(human) => setVerifiedHuman(human)}
         />
       </div>
 
-      {/* Progressive Unlocking Guard: Only render downstream app cards after Step 1 is complete! */}
-      {isStep1Complete ? (
-        <>
-          {/* Uniswap 0.1% Flywheel Hub */}
-          <FlywheelHub totalFeesCollectedEth={totalFeesCollectedEth} />
+      {/* ── Single Clean Status Pill Badge (Below Hands) ── */}
+      <div style={{ textAlign: 'center', margin: '16px 0 0px' }}>
+        <span style={{
+          fontSize: '12px', fontWeight: '600',
+          color: isStep1Complete ? 'var(--color-success)' : 'var(--color-accent-primary)',
+          background: isStep1Complete ? 'rgba(0,214,143,0.1)' : 'rgba(56,189,248,0.1)',
+          padding: '6px 18px', borderRadius: '20px',
+          border: isStep1Complete ? '1px solid rgba(0,214,143,0.3)' : '1px solid rgba(56,189,248,0.3)',
+          transition: 'all 0.4s ease',
+          display: 'inline-block',
+        }}>
+          {isStep1Complete
+            ? '✨ Wish Portal Opened — Make Your Wish'
+            : '🙏 Complete Wallet & World ID Verification to Open Portal'}
+        </span>
+      </div>
 
-          {/* Natural Language Wish Chat */}
-          <WishChat
-            verifiedHuman={verifiedHuman}
-            onWishParsed={(wish) => setActiveParsedWish(wish)}
-          />
+      {/* ── Praying Hands Visual + Expanded Wish Chat Portal ── */}
+      <PrayingHands isOpen={isStep1Complete}>
+        <WishChat
+          verifiedHuman={verifiedHuman}
+          onWishParsed={(wish) => setActiveParsedWish(wish)}
+        />
+      </PrayingHands>
 
-          {/* Confirmation & Coin Tossing Modal */}
+      {/* ── Active Wishes & Coin Tossing Modal (Standard Width 540px) ── */}
+      {isStep1Complete && (
+        <div style={{ maxWidth: '540px', margin: '0 auto' }}>
           <WishingWell
             parsedWish={activeParsedWish}
             onCancel={() => setActiveParsedWish(null)}
@@ -101,11 +127,11 @@ export default function App() {
               setActiveParsedWish(null);
             }}
           />
-
-          {/* Active Wish Cards List with Real Web3 Wallet & Rug Pull Shield */}
           {activeWishList.length > 0 && (
             <div style={{ marginTop: '24px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px' }}>Active Wishes ({activeWishList.length})</h3>
+              <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px' }}>
+                Active Wishes ({activeWishList.length})
+              </h3>
               {activeWishList.map((wish, idx) => (
                 <WishCard
                   key={idx}
@@ -119,13 +145,6 @@ export default function App() {
               ))}
             </div>
           )}
-        </>
-      ) : (
-        /* Locked Onboarding Notice Banner */
-        <div className="glass-card" style={{ padding: '24px', textAlign: 'center', background: 'rgba(255, 255, 255, 0.02)', border: '1px dashed var(--color-border)', color: 'var(--color-text-secondary)' }}>
-          <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '6px', color: 'var(--color-text-primary)' }}>
-            🔒 Complete Wallet Connection & World ID Verification to Unlock WISHERS Agent
-          </div>
         </div>
       )}
     </div>
