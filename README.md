@@ -62,6 +62,7 @@ Before running WISHERS locally, you need to set up a few developer accounts and 
    - `RP_SIGNING_KEY`
    - `UNISWAP_API_KEY`
    - `THE_GRAPH_API_KEY`
+   - `GROQ_API_KEY`
    - `OPENAI_API_KEY`
 
 3. **Install Dependencies**:
@@ -88,6 +89,8 @@ Before running WISHERS locally, you need to set up a few developer accounts and 
    ```bash
    npx @worldcoin/agentkit-cli register <your-agent-address>
    ```
+
+    You can find details in: https://docs.world.org/agents/agent-kit/integrate 
 3. Type a natural language command in the cyberpunk chat interface, for example:
    > *"Monitor the WETH pool. If the TVL rises above $200,000,000 , please swap 0.00001 ETH to WETH."*
 4. The AI parses your intent and displays a confirmation card.
