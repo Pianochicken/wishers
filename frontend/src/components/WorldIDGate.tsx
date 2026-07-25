@@ -27,7 +27,7 @@ export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGatePr
   const [mode, setMode] = useState<'world_app' | 'simulator'>('world_app');
   const [rpContext, setRpContext] = useState<RpContext | null>(null);
 
-  const appId = import.meta.env.VITE_WORLD_APP_ID || 'app_staging_e4093952fef9bc655c65f9bf60032b9a';
+  const appId = import.meta.env.VITE_WORLD_APP_ID;
   const action = 'wishers-verify';
 
   // Fast Simulator Verification for Demo / Testing

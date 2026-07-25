@@ -8,6 +8,7 @@ import aiRouter from './routes/ai';
 import uniswapRouter from './routes/uniswap';
 import debugRouter from './routes/debug';
 import thegraphRouter from './routes/thegraph';
+import agentkitRouter from './routes/agentkit';
 import { startAgentPolling } from './services/poller.js';
 import { addWish, getPendingWishes, getAllWishesForHuman } from './services/wishes.js';
 
@@ -40,6 +41,7 @@ app.use('/api/ai', aiRouter);
 app.use('/api/uniswap', uniswapRouter);
 app.use('/api/debug', debugRouter);
 app.use('/api/thegraph', thegraphRouter);
+app.use('/api/agentkit', agentkitRouter);
 
 // Wishes API
 app.post('/api/wishes', (req: Request, res: Response) => {
@@ -69,7 +71,7 @@ app.get('/api/health', (req: Request, res: Response) => {
     status: 'ok',
     app: 'WISHERS API',
     timestamp: new Date().toISOString(),
-    network: 'Base Sepolia (chainId: 84532)',
+    network: 'World Chain (chainId: 480)',
 
   });
 });

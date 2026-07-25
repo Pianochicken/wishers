@@ -3,11 +3,11 @@ import { validateAgentSession } from '../services/agent.js';
 
 const router = express.Router();
 
-// Base Sepolia Testnet Token Registry (chainId: 84532)
+// World Chain Token Registry (chainId: 480)
 export const TOKEN_ADDRESSES: Record<string, { address: string; name: string; isMock: boolean }> = {
   ETH: {
     address: '0x0000000000000000000000000000000000000000',
-    name: 'Native Ethereum (Base Sepolia)',
+    name: 'Native Ethereum (World Chain)',
     isMock: false,
   },
   WETH: {
@@ -47,8 +47,8 @@ router.post('/quote', async (req: Request, res: Response) => {
           },
           body: JSON.stringify({
             type: 'EXACT_INPUT',
-            tokenInChainId: 84532,
-            tokenOutChainId: 84532,
+            tokenInChainId: 480,
+            tokenOutChainId: 480,
             tokenIn: tokenInObj.address,
             tokenOut: tokenOutObj.address,
             amount: (parseFloat(amount || '0.001') * 1e18).toString(),
@@ -76,7 +76,7 @@ router.post('/quote', async (req: Request, res: Response) => {
 
     res.json({
       status: 'success',
-      source: 'Uniswap Base Sepolia Dynamic Engine',
+      source: 'Uniswap World Chain Dynamic Engine',
       tokenIn: tokenInObj,
       tokenOut: tokenOutObj,
       amountIn: amount || '0.001',
@@ -91,7 +91,7 @@ router.post('/quote', async (req: Request, res: Response) => {
 
 /**
  * POST /api/uniswap/swap
- * Executes swap with Session Key validation and real Base Sepolia tx hash returning
+ * Executes swap with Session Key validation and real World Chain tx hash returning
  */
 router.post('/swap', async (req: Request, res: Response) => {
   try {

@@ -5,7 +5,7 @@ const router = express.Router();
 
 /**
  * GET /api/thegraph/pool/:address
- * Queries the Uniswap V3 Base Sepolia Subgraph for real-time TVL and liquidity.
+ * Queries the Uniswap V3 Ethereum Mainnet Subgraph for real-time TVL and liquidity.
  */
 router.get('/pool/:address', async (req: Request, res: Response): Promise<void> => {
   try {

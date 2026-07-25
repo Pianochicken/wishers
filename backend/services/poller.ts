@@ -1,7 +1,7 @@
 import { getPendingWishes, updateWishStatus } from './wishes.js';
 import { getPoolMetrics } from './monitor.js';
 import { getAgentWallet } from './agent.js';
-import { executeEmergencySwap } from './uniswapTrading.js';
+import { createAgentkitClient, formatSIWEMessage } from '@worldcoin/agentkit';
 import { ethers } from 'ethers';
 
 let pollingInterval: NodeJS.Timeout | null = null;
@@ -91,15 +91,50 @@ export function startAgentPolling(intervalMs: number = 30000) {
              }
           }
 
-          const realTxHash = await executeEmergencySwap(agentWallet, swapAmount, wish.destinationTokenSymbol);
+          // WISHERS AgentKit Flow:
+          // Generate SIWE Payload Manually for One-Roundtrip execution (bypassing x402 402 challenge)
+          const fullUrl = `http://localhost:${process.env.PORT || 3001}/api/agentkit/execute-swap`;
+          const payloadData = {
+            version: '1',
+            domain: 'localhost',
+            uri: fullUrl,
+            chainId: 'eip155:480',
+            type: 'eip191' as const,
+            address: agentWallet.address,
+            nonce: Date.now().toString(),
+            issuedAt: new Date().toISOString()
+          };
           
-          if (realTxHash) {
-            console.log(`✅ [Agent Poller] Emergency Swap Executed! TxHash: ${realTxHash}`);
-            console.log(`🔗 [Agent Poller] View on Basescan: https://sepolia.basescan.org/tx/${realTxHash}`);
-            // Mark wish as executed so we don't trigger it again
-            updateWishStatus(wish.id, 'EXECUTED', realTxHash);
-          } else {
-            console.log(`❌ [Agent Poller] Emergency Swap Failed. Will retry next tick.`);
+          const message = formatSIWEMessage(payloadData, agentWallet.address);
+          const signature = await agentWallet.signMessage(message);
+          const xAgentKitHeader = Buffer.from(JSON.stringify({ ...payloadData, signature })).toString('base64');
+
+          console.log(`🛡️ [Agent Poller] Agent (${agentWallet.address}) signing request for human-backed verification...`);
+          
+          try {
+            const response = await fetch(fullUrl, {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'agentkit': xAgentKitHeader
+              },
+              body: JSON.stringify({
+                wishId: wish.id,
+                nullifierHash: wish.nullifierHash,
+                swapAmount,
+                destinationTokenSymbol: wish.destinationTokenSymbol
+              })
+            });
+
+            if (response.ok) {
+              const result = await response.json();
+              console.log(`✅ [Agent Poller] AgentKit execution successful! TxHash: ${result.txHash}`);
+            } else {
+              const errData = await response.json();
+              console.error(`❌ [Agent Poller] AgentKit execution rejected:`, errData);
+            }
+          } catch (e) {
+            console.error(`❌ [Agent Poller] AgentKit network error:`, e);
           }
         } else {
           console.log(`[Agent Poller] Wish ${wish.id} condition not met. (Current ${metricUsed}: ${currentValue.toFixed(4)} | Needs: ${wish.conditionType} ${wish.thresholdValue})`);

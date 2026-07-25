@@ -1,13 +1,13 @@
 import { ethers } from 'ethers';
 
-// Base Sepolia Chain ID
-const CHAIN_ID = 84532;
+// World Chain Mainnet Chain ID
+const CHAIN_ID = 480;
 
-// Token Addresses for Base Sepolia
+// Token Addresses for World Chain Mainnet
 const NATIVE_ETH_ADDRESS = '0x0000000000000000000000000000000000000000';
 const TOKEN_ADDRESS_MAP: Record<string, string> = {
   'WETH': '0x4200000000000000000000000000000000000006',
-  'USDC': '0x036CBD53842c5426634e7929541eC2318f3dCF7e',
+  'USDC': '0x79A02482A880bCE3F13e09Da970dC34db4CD24d1',
 };
 
 /**

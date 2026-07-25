@@ -32,6 +32,10 @@
    - `backend/services/wishes.ts` (State Manager), `backend/services/poller.ts` (10s recursive interval).
    - Removed hardcoded "Risk Levels". The Poller now dynamically evaluates exact AI intents (`PRICE_ABOVE`, `TVL_BELOW`, etc.) against LIVE metrics from The Graph (WETH/OSWALD pool on Base Sepolia).
    - Replaced fake data injection with authentic, dynamic Swap routing (supporting both `WETH` and `USDC` based on `wish.destinationTokenSymbol`).
+9. ✅ **Phase 8 AgentKit Integration (AgentKit New Use Cases Prize)**:
+   - Successfully integrated `@worldcoin/agentkit`.
+   - `backend/routes/agentkit.ts` handles cryptographic verification of human delegation (`validateAgentkitMessage`, `verifyAgentkitSignature`) purely via manual validation.
+   - `backend/services/poller.ts` now uses `formatSIWEMessage` and `ethers.signMessage` to directly construct and inject the `agentkit` header via native `fetch` (One-roundtrip flow, bypassing x402 402 challenge), proving human-backed intent on Mainnet smoothly.
 
 ---
 

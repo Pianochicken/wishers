@@ -1,10 +1,8 @@
 import { ethers } from 'ethers';
 
-// Base Sepolia RPC Provider
-const BASE_SEPOLIA_RPC_URL = process.env.BASE_SEPOLIA_RPC_URL || 'https://sepolia.base.org';
-export const provider = new ethers.JsonRpcProvider(BASE_SEPOLIA_RPC_URL);
-
-const RP_SIGNING_KEY = process.env.RP_SIGNING_KEY || 'sk_staging_dummy_key';
+// World Chain Mainnet RPC Provider
+const WORLD_CHAIN_RPC_URL = process.env.WORLD_CHAIN_RPC_URL || 'https://worldchain-mainnet.g.alchemy.com/public';
+export const provider = new ethers.JsonRpcProvider(WORLD_CHAIN_RPC_URL);
 
 export interface AgentSession {
   nullifierHash: string;
@@ -18,11 +16,17 @@ export interface AgentSession {
 const activeAgentSessions = new Map<string, AgentSession>();
 
 /**
- * Generates a REAL EVM Base Sepolia Wallet deterministically bound to the user's World ID Nullifier
+ * Generates a REAL EVM World Chain Wallet deterministically bound to the user's World ID Nullifier
  */
 export function getOrCreateRealAgentWallet(nullifierHash: string, durationHours = 24): AgentSession {
-  // Deterministic Private Key generated from RP_SIGNING_KEY + nullifierHash
-  const seedString = `${RP_SIGNING_KEY}:${nullifierHash}`;
+  // ESM Fix: Access env vars inside the function at runtime so dotenv has time to load
+  const signingKey = process.env.RP_SIGNING_KEY;
+  if (!signingKey) {
+    throw new Error('❌ [Agent] RP_SIGNING_KEY is missing in environment variables!');
+  }
+  
+  // Deterministic Private Key generated from signingKey + nullifierHash
+  const seedString = `${signingKey}:${nullifierHash}`;
   const privateKey = ethers.keccak256(ethers.toUtf8Bytes(seedString));
   const wallet = new ethers.Wallet(privateKey, provider);
 
@@ -69,8 +73,14 @@ export function renewAgentSession(nullifierHash: string, durationHours = 24): Ag
  * This is used to sign and send transactions on behalf of the user.
  */
 export function getAgentWallet(nullifierHash: string): ethers.Wallet {
-  // Deterministic Private Key generated from RP_SIGNING_KEY + nullifierHash
-  const seedString = `${RP_SIGNING_KEY}:${nullifierHash}`;
+  // ESM Fix: Access env vars inside the function at runtime
+  const signingKey = process.env.RP_SIGNING_KEY;
+  if (!signingKey) {
+    throw new Error('❌ [Agent] RP_SIGNING_KEY is missing in environment variables!');
+  }
+
+  // Deterministic Private Key generated from signingKey + nullifierHash
+  const seedString = `${signingKey}:${nullifierHash}`;
   const privateKey = ethers.keccak256(ethers.toUtf8Bytes(seedString));
   return new ethers.Wallet(privateKey, provider);
 }

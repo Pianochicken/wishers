@@ -5,7 +5,7 @@ interface WalletConnectProps {
   onWalletConnected: (address: string | null) => void;
 }
 
-const BASE_SEPOLIA_CHAIN_ID_HEX = '0x14a34'; // 84532
+const WORLD_CHAIN_CHAIN_ID_HEX = '0x1e0'; // 480
 
 export default function WalletConnect({ onWalletConnected }: WalletConnectProps) {
   const [userAddress, setUserAddress] = useState<string | null>(null);
@@ -25,9 +25,9 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
       };
 
       const handleChainChanged = (newChainIdHex: string) => {
-        const onBase = newChainIdHex === BASE_SEPOLIA_CHAIN_ID_HEX;
-        setIsCorrectNetwork(onBase);
-        if (onBase && userAddress) {
+        const onWorldChain = newChainIdHex === WORLD_CHAIN_CHAIN_ID_HEX;
+        setIsCorrectNetwork(onWorldChain);
+        if (onWorldChain && userAddress) {
           fetchBalance(userAddress);
           onWalletConnected(userAddress);
         } else {
@@ -48,11 +48,11 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
   const silentAccountCheck = async (address: string) => {
     try {
       const chainIdHex = await window.ethereum.request({ method: 'eth_chainId' });
-      const onBase = chainIdHex === BASE_SEPOLIA_CHAIN_ID_HEX;
-      setIsCorrectNetwork(onBase);
+      const onWorldChain = chainIdHex === WORLD_CHAIN_CHAIN_ID_HEX;
+      setIsCorrectNetwork(onWorldChain);
       setUserAddress(address);
 
-      if (onBase) {
+      if (onWorldChain) {
         onWalletConnected(address);
         await fetchBalance(address);
       } else {
@@ -76,11 +76,11 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
     }
   };
 
-  const ensureBaseSepoliaNetwork = async (): Promise<boolean> => {
+  const ensureWorldChainNetwork = async (): Promise<boolean> => {
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
-        params: [{ chainId: BASE_SEPOLIA_CHAIN_ID_HEX }],
+        params: [{ chainId: WORLD_CHAIN_CHAIN_ID_HEX }],
       });
       setIsCorrectNetwork(true);
       if (userAddress) {
@@ -96,11 +96,11 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
             method: 'wallet_addEthereumChain',
             params: [
               {
-                chainId: BASE_SEPOLIA_CHAIN_ID_HEX,
-                chainName: 'Base Sepolia Testnet',
-                nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-                rpcUrls: ['https://sepolia.base.org'],
-                blockExplorerUrls: ['https://sepolia.basescan.org'],
+                chainId: WORLD_CHAIN_CHAIN_ID_HEX,
+                chainName: 'World Chain',
+                nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+                rpcUrls: ['https://worldchain-mainnet.g.alchemy.com/public', 'https://rpc.worldchain.network'],
+                blockExplorerUrls: ['https://worldscan.org'],
               },
             ],
           });
@@ -111,7 +111,7 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
           }
           return true;
         } catch (addError) {
-          console.error('Failed to add Base Sepolia network:', addError);
+          console.error('Failed to add World Chain network:', addError);
         }
       }
       setIsCorrectNetwork(false);
@@ -127,8 +127,8 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
 
     setConnecting(true);
     try {
-      // 1. Force network switch to Base Sepolia first
-      await ensureBaseSepoliaNetwork();
+      // 1. Force network switch to World Chain first
+      await ensureWorldChainNetwork();
 
       // 2. Request scoped permission via wallet_requestPermissions for Picture 1 targeted UI
       try {
@@ -203,16 +203,16 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
                   whiteSpace: 'nowrap',
                 }}
               >
-                {isCorrectNetwork ? 'Base Sepolia' : 'Wrong Network'}
+                {isCorrectNetwork ? 'World Chain' : 'Wrong Network'}
               </span>
             )}
           </div>
           <div style={{ fontSize: '11px', color: isCorrectNetwork ? 'var(--color-text-secondary)' : 'var(--color-danger)', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {userAddress
               ? isCorrectNetwork
-                ? `${ethBalance || '0.0000'} Base Sepolia ETH`
+                ? `${ethBalance || '0.0000'} World Chain ETH`
                 : ''
-              : 'Connect Wallet (Base Sepolia Testnet)'}
+              : 'Connect Wallet (World Chain)'}
           </div>
         </div>
       </div>
@@ -223,7 +223,7 @@ export default function WalletConnect({ onWalletConnected }: WalletConnectProps)
           <>
             {!isCorrectNetwork && (
               <button
-                onClick={ensureBaseSepoliaNetwork}
+                onClick={ensureWorldChainNetwork}
                 style={{
                   fontSize: '11px',
                   padding: '6px 12px',
