@@ -1,4 +1,5 @@
 # WISHERS 🙏🏻
+<img width="2752" height="1536" alt="banner-16-9-1" src="https://github.com/user-attachments/assets/4b8a6f53-f5f0-448a-b101-03d5327dcfa8" />
 
 **WISHERS** is a decentralized, intent-driven AI agent that empowers users to execute complex, condition-based DeFi trades using natural language.
 
