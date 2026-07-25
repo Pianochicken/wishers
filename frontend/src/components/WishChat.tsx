@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles, Send, ShieldAlert, TrendingUp, DollarSign, RefreshCw } from 'lucide-react';
 import { VerifiedHuman } from './WorldIDGate';
+import { API_BASE } from '../config';
 import WishingWell from './WishingWell';
 
 export interface ParsedWish {
@@ -37,7 +38,7 @@ export default function WishChat({ verifiedHuman, onWishConfirmed }: WishChatPro
     setLoading(true);
 
     try {
-      const res = await fetch('/api/ai/parse-wish', {
+      const res = await fetch(`${API_BASE}/api/ai/parse-wish`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

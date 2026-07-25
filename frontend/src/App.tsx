@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import WorldIDGate, { VerifiedHuman } from './components/WorldIDGate';
 import PrayingHands from './components/PrayingHands';
 import WishChat, { ParsedWish } from './components/WishChat';
-
 import WishCard from './components/WishCard';
+import { API_BASE } from './config';
 
 export default function App() {
   const [backendStatus, setBackendStatus] = useState<string>('checking...');
@@ -23,7 +23,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    fetch('/api/health')
+    fetch(`${API_BASE}/api/health`)
       .then((res) => res.json())
       .then((data) => setBackendStatus(data.status === 'ok' ? 'Online' : 'Error'))
       .catch(() => setBackendStatus('Backend Offline'));
@@ -34,7 +34,7 @@ export default function App() {
     if (verifiedHuman) {
       const fetchWishes = async () => {
         try {
-          const res = await fetch(`/api/wishes/${verifiedHuman.nullifier}`);
+          const res = await fetch(`${API_BASE}/api/wishes/${verifiedHuman.nullifier}`);
           const data = await res.json();
           if (data.status === 'success') {
             setActiveWishList(data.wishes.sort((a: any, b: any) => b.createdAt - a.createdAt));
@@ -209,7 +209,7 @@ export default function App() {
               // Send to backend Agent Poller
               if (verifiedHuman) {
                 try {
-                  const res = await fetch('/api/wishes', {
+                  const res = await fetch(`${API_BASE}/api/wishes`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

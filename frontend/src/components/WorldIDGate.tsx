@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ShieldCheck, UserCheck, Bot, CheckCircle2, RefreshCw, QrCode, Zap, LogOut } from 'lucide-react';
 import { IDKitWidget, VerificationLevel } from '@worldcoin/idkit';
+import { API_BASE } from '../config';
 
 export interface VerifiedHuman {
   nullifier: string;
@@ -34,13 +35,13 @@ export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGatePr
   const handleFastSimulatorVerify = async () => {
     setLoading(true);
     try {
-      const sigRes = await fetch('/api/auth/rp-signature', {
+      const sigRes = await fetch(`${API_BASE}/api/auth/rp-signature`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
       const sigData = await sigRes.json();
 
-      const verifyRes = await fetch('/api/auth/verify-proof', {
+      const verifyRes = await fetch(`${API_BASE}/api/auth/verify-proof`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -67,7 +68,7 @@ export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGatePr
   const handleOpenIDKit = async (openWidget: () => void) => {
     setLoading(true);
     try {
-      const sigRes = await fetch('/api/auth/rp-signature', {
+      const sigRes = await fetch(`${API_BASE}/api/auth/rp-signature`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
@@ -95,7 +96,7 @@ export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGatePr
   const handleIDKitSuccess = async (result: any) => {
     setLoading(true);
     try {
-      const verifyRes = await fetch('/api/auth/verify-proof', {
+      const verifyRes = await fetch(`${API_BASE}/api/auth/verify-proof`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
