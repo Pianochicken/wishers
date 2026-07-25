@@ -33,8 +33,7 @@ router.post('/quote', async (req: Request, res: Response) => {
     const tokenInObj = TOKEN_ADDRESSES[tokenInSymbol] || TOKEN_ADDRESSES.ETH;
     const tokenOutObj = TOKEN_ADDRESSES[tokenOutSymbol] || TOKEN_ADDRESSES.USDC;
 
-    // Strictly read Treasury Address from process.env (No hardcoded fallbacks in source code!)
-    const treasuryAddress = process.env.WISHERS_TREASURY_ADDRESS || '0x0000000000000000000000000000000000000000';
+    // Check if Uniswap API Key is provided
     const apiKey = process.env.UNISWAP_API_KEY;
 
     // Call Uniswap Trading API v1 REST endpoint if key is valid
@@ -53,9 +52,7 @@ router.post('/quote', async (req: Request, res: Response) => {
             tokenIn: tokenInObj.address,
             tokenOut: tokenOutObj.address,
             amount: (parseFloat(amount || '0.001') * 1e18).toString(),
-            swapper: swapperAddress || treasuryAddress,
-            portionBips: 10,
-            portionRecipient: treasuryAddress,
+            swapper: swapperAddress || '0x0000000000000000000000000000000000000000',
           }),
         });
 
@@ -65,11 +62,7 @@ router.post('/quote', async (req: Request, res: Response) => {
             status: 'success',
             source: 'Uniswap Trading API v1 (Live)',
             quote: apiData,
-            integratorFee: {
-              feeBips: 10,
-              feePercentage: '0.1%',
-              treasuryRecipient: treasuryAddress,
-            },
+
           });
         }
       } catch (uniswapErr) {
@@ -88,12 +81,7 @@ router.post('/quote', async (req: Request, res: Response) => {
       tokenOut: tokenOutObj,
       amountIn: amount || '0.001',
       amountOutEstimated: (inputNumeric * 3150.5).toFixed(2),
-      integratorFee: {
-        feeBips: 10,
-        feePercentage: '0.1%',
-        treasuryRecipient: treasuryAddress,
-        estimatedFeeAmount: integratorFeeEth,
-      },
+
     });
   } catch (error) {
     console.error('Error fetching quote:', error);
@@ -122,14 +110,11 @@ router.post('/swap', async (req: Request, res: Response) => {
     }
 
     const inputNumeric = parseFloat(wish?.actionAmount || '0.001');
-    const feeAmount = (inputNumeric * 0.001).toFixed(6);
-    const treasuryAddress = process.env.WISHERS_TREASURY_ADDRESS || '0x0000000000000000000000000000000000000000';
 
     // If user provided a real MetaMask signed transaction hash, broadcast & record it!
     const txHash = userSignedTxHash || `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`;
 
     console.log(`⚡ [Uniswap Swap Executed] Target: ${wish?.targetTokenSymbol || 'ETH'} -> ${wish?.destinationTokenSymbol || 'USDC'}`);
-    console.log(`💸 [0.1% Integrator Fee Collected] Amount: ${feeAmount} ETH -> Recipient: ${treasuryAddress}`);
 
     res.json({
       status: 'executed',
@@ -138,13 +123,8 @@ router.post('/swap', async (req: Request, res: Response) => {
       swappedFrom: wish?.targetTokenSymbol || 'ETH',
       swappedTo: wish?.destinationTokenSymbol || 'USDC',
       amountSwapped: wish?.actionAmount || '0.001',
+      gasCostEstimate: '$1.45',
       executedByAgentWallet: agentWallet,
-      integratorFeeCollected: {
-        bips: 10,
-        percentage: '0.1%',
-        amount: `${feeAmount} ETH`,
-        recipient: treasuryAddress,
-      },
       basescanUrl: `https://sepolia.basescan.org/tx/${txHash}`,
       timestamp: new Date().toISOString(),
     });

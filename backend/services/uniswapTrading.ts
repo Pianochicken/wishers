@@ -16,7 +16,6 @@ const TOKEN_ADDRESS_MAP: Record<string, string> = {
  */
 export async function executeEmergencySwap(wallet: ethers.Wallet, amountEth: string, destinationSymbol: string): Promise<string | null> {
   const apiKey = process.env.UNISWAP_API_KEY;
-  const treasuryAddress = process.env.WISHERS_TREASURY_ADDRESS || wallet.address;
 
   if (!apiKey || apiKey === 'your_uniswap_api_key') {
     console.error('❌ [Uniswap Trading] UNISWAP_API_KEY is missing or invalid!');

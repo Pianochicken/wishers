@@ -30,7 +30,7 @@ app.use(express.json());
 console.log('--- 🔐 WISHERS Backend Environment Config Status ---');
 console.log(`- World ID App ID: ${process.env.VITE_WORLD_APP_ID ? 'Configured ✅' : 'Missing ❌'}`);
 console.log(`- Uniswap API Key: ${process.env.UNISWAP_API_KEY && process.env.UNISWAP_API_KEY !== 'your_uniswap_api_key' ? 'Configured ✅' : 'Missing ⚠️ (Fallback Mode)'}`);
-console.log(`- Treasury Address: ${process.env.WISHERS_TREASURY_ADDRESS ? process.env.WISHERS_TREASURY_ADDRESS : 'Missing ⚠️'}`);
+
 console.log(`- The Graph API Key: ${process.env.THE_GRAPH_API_KEY && process.env.THE_GRAPH_API_KEY !== 'your_the_graph_api_key' ? 'Configured ✅' : 'Missing ⚠️ (DEX Monitor Mode)'}`);
 console.log('----------------------------------------------------');
 
@@ -70,7 +70,7 @@ app.get('/api/health', (req: Request, res: Response) => {
     app: 'WISHERS API',
     timestamp: new Date().toISOString(),
     network: 'Base Sepolia (chainId: 84532)',
-    treasury: process.env.WISHERS_TREASURY_ADDRESS || 'Not Configured',
+
   });
 });
 

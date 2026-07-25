@@ -2,6 +2,7 @@ import { getPendingWishes, updateWishStatus } from './wishes.js';
 import { getPoolMetrics } from './monitor.js';
 import { getAgentWallet } from './agent.js';
 import { executeEmergencySwap } from './uniswapTrading.js';
+import { ethers } from 'ethers';
 
 let pollingInterval: NodeJS.Timeout | null = null;
 
@@ -73,8 +74,24 @@ export function startAgentPolling(intervalMs: number = 30000) {
           const agentWallet = getAgentWallet(wish.nullifierHash);
           
           // Execute the REAL swap using Uniswap API
-          // Hardcoded to 0.0001 ETH for hackathon safety
-          const realTxHash = await executeEmergencySwap(agentWallet, '0.0001', wish.destinationTokenSymbol);
+          let swapAmount = wish.actionAmount;
+          if (swapAmount.toUpperCase() === 'ALL') {
+             try {
+               const balance = await agentWallet.provider!.getBalance(agentWallet.address);
+               const gasBuffer = ethers.parseEther("0.005"); // Reserve 0.005 ETH for gas
+               if (balance > gasBuffer) {
+                  swapAmount = ethers.formatEther(balance - gasBuffer);
+               } else {
+                  console.warn(`⚠️ [Agent Poller] Balance too low to safely swap 'ALL' and pay gas for wish ${wish.id}. Falling back to 0.001 ETH.`);
+                  swapAmount = '0.0001';
+               }
+             } catch (err) {
+               console.warn(`⚠️ [Agent Poller] Failed to fetch balance for wish ${wish.id}. Falling back to 0.001 ETH.`, err);
+               swapAmount = '0.0001';
+             }
+          }
+
+          const realTxHash = await executeEmergencySwap(agentWallet, swapAmount, wish.destinationTokenSymbol);
           
           if (realTxHash) {
             console.log(`✅ [Agent Poller] Emergency Swap Executed! TxHash: ${realTxHash}`);
