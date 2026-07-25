@@ -33,10 +33,10 @@ const getAIClients = () => {
 
 // Layer 3: Zod Schema for Strict Server-Side Validation
 export const wishIntentZodSchema = z.object({
-  conditionType: z.enum(['TVL_DROP', 'PRICE_DROP', 'PRICE_SPIKE', 'DEPEG']),
+  conditionType: z.enum(['PRICE_ABOVE', 'PRICE_BELOW', 'TVL_ABOVE', 'TVL_BELOW', 'PERCENTAGE_DROP']),
   targetTokenSymbol: z.string().min(1).max(10),
   thresholdValue: z.number().positive(),
-  thresholdUnit: z.string().describe("e.g. '%' for TVL or depeg drops, '$' for price spikes, or empty string '' if none"),
+  thresholdUnit: z.string().describe("e.g. '$', '%', or empty string '' if none"),
   actionType: z.enum(['SWAP', 'STAKE', 'NOTIFY']),
   actionAmount: z.string().min(1),
   destinationTokenSymbol: z.string().min(1).max(10).default('USDC'),
@@ -76,7 +76,7 @@ router.post('/parse-wish', async (req: Request, res: Response) => {
                 content: `You are a DeFi intent parser. Translate the user's natural language wish into a structured JSON transaction intent. 
 The JSON must strictly match this structure:
 {
-  "conditionType": "TVL_DROP" | "PRICE_DROP" | "PRICE_SPIKE" | "DEPEG",
+  "conditionType": "PRICE_ABOVE" | "PRICE_BELOW" | "TVL_ABOVE" | "TVL_BELOW" | "PERCENTAGE_DROP",
   "targetTokenSymbol": "string (e.g. PEPE, BTC, ETH)",
   "thresholdValue": number,
   "thresholdUnit": "string (e.g. $, %, or empty)",
@@ -136,7 +136,7 @@ Return ONLY valid JSON.`,
       const lowerPrompt = prompt.toLowerCase();
       if (lowerPrompt.includes('pepe') && (lowerPrompt.includes('tvl') || lowerPrompt.includes('drop') || lowerPrompt.includes('rug'))) {
         parsedResult = {
-          conditionType: 'TVL_DROP',
+          conditionType: 'PERCENTAGE_DROP',
           targetTokenSymbol: 'PEPE',
           thresholdValue: 50, // 50% TVL drop
           thresholdUnit: '%',
@@ -147,7 +147,7 @@ Return ONLY valid JSON.`,
         };
       } else if (lowerPrompt.includes('nvda') || lowerPrompt.includes('nvidia') || lowerPrompt.includes('stock')) {
         parsedResult = {
-          conditionType: 'PRICE_DROP',
+          conditionType: 'PRICE_BELOW',
           targetTokenSymbol: 'ETH',
           thresholdValue: 3000, // $3000 ETH
           thresholdUnit: '$',
@@ -158,7 +158,7 @@ Return ONLY valid JSON.`,
         };
       } else if (lowerPrompt.includes('usdt') || lowerPrompt.includes('depeg')) {
         parsedResult = {
-          conditionType: 'DEPEG',
+          conditionType: 'PRICE_BELOW',
           targetTokenSymbol: 'USDT',
           thresholdValue: 0.992,
           thresholdUnit: '$',
@@ -170,7 +170,7 @@ Return ONLY valid JSON.`,
       } else {
         // General default parsing
         parsedResult = {
-          conditionType: 'TVL_DROP',
+          conditionType: 'PERCENTAGE_DROP',
           targetTokenSymbol: 'PEPE',
           thresholdValue: 30,
           thresholdUnit: '%',
@@ -180,6 +180,11 @@ Return ONLY valid JSON.`,
           humanReadableSummary: `Monitor ${prompt} and execute emergency swap to USDC if risk is detected`,
         };
       }
+    }
+
+    // Clean up empty destinationTokenSymbol outputted by LLMs
+    if (!parsedResult.destinationTokenSymbol || parsedResult.destinationTokenSymbol.trim() === '') {
+      parsedResult.destinationTokenSymbol = 'USDC';
     }
 
     // Layer 3 Verification: Pass through Zod Schema

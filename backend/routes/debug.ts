@@ -1,11 +1,11 @@
 import express, { Request, Response } from 'express';
-import { setSimulatedTvlCrash, getSimulatedTvlCrashState, getPoolRiskMetrics } from '../services/monitor';
+import { setSimulatedTvlCrash, getSimulatedTvlCrashState, getPoolMetrics } from '../services/monitor.js';
 
 const router = express.Router();
 
 /**
  * POST /api/debug/simulate-tvl-drop
- * Dev Trigger Switch: Simulates a sudden 65% TVL Drop for 100% reliable demo video recording
+ * Dev Trigger Switch: Simulates a sudden 65% Crash for 100% reliable demo video recording
  */
 router.post('/simulate-tvl-drop', (req: Request, res: Response) => {
   try {
@@ -18,28 +18,28 @@ router.post('/simulate-tvl-drop', (req: Request, res: Response) => {
       status: 'success',
       simulatedCrashActive: newState,
       message: newState
-        ? '🔥 Simulated 65% TVL Drop Activated! Active wishes will trigger emergency protective swaps.'
-        : '🟢 TVL Crash Simulation Deactivated. Pools restored to safe levels.',
+        ? '🔥 Simulated 65% Crash Activated! Active wishes will trigger emergency protective swaps.'
+        : '🟢 Crash Simulation Deactivated. Pools restored to normal levels.',
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error('Error toggling simulated TVL crash:', error);
-    res.status(500).json({ error: 'Failed to toggle simulated TVL crash' });
+    console.error('Error toggling simulated crash:', error);
+    res.status(500).json({ error: 'Failed to toggle simulated crash' });
   }
 });
 
 /**
  * GET /api/debug/tvl-status
- * Returns live risk intelligence report for a DEX pool
+ * Returns live metrics for a DEX pool
  */
 router.get('/tvl-status', async (req: Request, res: Response) => {
   try {
     const poolAddress = (req.query.pool as string) || '0x0000000000000000000000000000000000000000';
-    const report = await getPoolRiskMetrics(poolAddress);
+    const report = await getPoolMetrics(poolAddress);
     res.json(report);
   } catch (error) {
-    console.error('Error fetching pool risk metrics:', error);
-    res.status(500).json({ error: 'Failed to fetch pool risk metrics' });
+    console.error('Error fetching pool metrics:', error);
+    res.status(500).json({ error: 'Failed to fetch pool metrics' });
   }
 });
 

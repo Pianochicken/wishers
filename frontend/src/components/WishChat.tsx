@@ -4,10 +4,10 @@ import { VerifiedHuman } from './WorldIDGate';
 import WishingWell from './WishingWell';
 
 export interface ParsedWish {
-  conditionType: 'TVL_DROP' | 'PRICE_DROP' | 'PRICE_SPIKE' | 'DEPEG';
+  conditionType: 'PRICE_ABOVE' | 'PRICE_BELOW' | 'TVL_ABOVE' | 'TVL_BELOW' | 'PERCENTAGE_DROP';
   targetTokenSymbol: string;
   thresholdValue: number;
-  thresholdUnit?: string;
+  thresholdUnit: string;
   actionType: 'SWAP' | 'STAKE' | 'NOTIFY';
   actionAmount: string;
   destinationTokenSymbol: string;

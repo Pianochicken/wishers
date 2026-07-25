@@ -4,8 +4,7 @@ export interface PoolTVLData {
   token1: { symbol: string; id: string };
   liquidity: string;
   totalValueLockedUSD: string;
-  totalValueLockedToken0: string;
-  totalValueLockedToken1: string;
+  token0Price: string;
 }
 
 export async function fetchPoolTVL(poolAddress: string): Promise<PoolTVLData> {
@@ -32,8 +31,7 @@ export async function fetchPoolTVL(poolAddress: string): Promise<PoolTVLData> {
         }
         liquidity
         totalValueLockedUSD
-        totalValueLockedToken0
-        totalValueLockedToken1
+        token0Price
       }
     }
   `;

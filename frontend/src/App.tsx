@@ -141,8 +141,26 @@ export default function App() {
       <PrayingHands isOpen={isStep1Complete}>
         <WishChat
           verifiedHuman={verifiedHuman}
-          onWishConfirmed={(confirmedWish) => {
+          onWishConfirmed={async (confirmedWish) => {
+            // Optimistically update UI
             setActiveWishList([confirmedWish, ...activeWishList]);
+            
+            // Send to backend Agent Poller
+            if (verifiedHuman) {
+              try {
+                await fetch('/api/wishes', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    nullifierHash: verifiedHuman.nullifier,
+                    wish: confirmedWish,
+                  }),
+                });
+                console.log('✅ Wish successfully submitted to Agent Poller!');
+              } catch (err) {
+                console.error('❌ Failed to submit wish to backend:', err);
+              }
+            }
           }}
         />
       </PrayingHands>

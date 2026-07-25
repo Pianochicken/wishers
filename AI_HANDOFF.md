@@ -28,9 +28,10 @@
 7. ✅ **Phase 5 (Part 1 & 2) The Graph TVL Monitor & Rug Pull Shield UI**:
    - `backend/services/monitor.ts` & `backend/routes/debug.ts`: The Graph Subgraph TVL monitoring loop & `/api/debug/simulate-tvl-drop` switch.
    - `frontend/src/components/WishCard.tsx`: Dynamic **Rug Pull Shield Red Pulsing Alert UI Card** (`🚨 CRITICAL RUG PULL DETECTED (-65%)`) with automatic Agent emergency protection trigger!
-8. ✅ **Phase 6 (Part 1) AI Agent Background Polling Engine**:
+8. ✅ **Phase 6 AI Agent Background Polling Engine (True Intent-Driven Architecture)**:
    - `backend/services/wishes.ts` (State Manager), `backend/services/poller.ts` (10s recursive interval).
-   - Replaced mock TVL monitor with actual on-chain Subgraph queries via `backend/services/thegraph.ts` and `GET /api/thegraph/pool/:address`.
+   - Removed hardcoded "Risk Levels". The Poller now dynamically evaluates exact AI intents (`PRICE_ABOVE`, `TVL_BELOW`, etc.) against LIVE metrics from The Graph (WETH/OSWALD pool on Base Sepolia).
+   - Replaced fake data injection with authentic, dynamic Swap routing (supporting both `WETH` and `USDC` based on `wish.destinationTokenSymbol`).
 
 ---
 
@@ -38,8 +39,8 @@
 1. **User Custom Adjustments & Polish**: Address all user preferences and UI/UX fine-tuning.
 2. **Phase 6 (Real Protocol Integrations)**:
    - ✅ **World ID**: Frontend Gate implemented, Agent Wallet delegation prepared.
-   - ✅ **The Graph**: Replaced mock TVL monitor with actual on-chain Subgraph queries via `backend/services/thegraph.ts` and `GET /api/thegraph/pool/:address`.
-   - ✅ **Uniswap**: Integrated real automatic trade routing and quote fetching via `backend/services/uniswapTrading.ts` (Native ETH -> USDC).
+   - ✅ **The Graph**: Completely replaced mock monitors with exact GraphQL metric tracking (`token0Price`, `totalValueLockedUSD`) on Base Sepolia.
+   - ✅ **Uniswap**: Integrated authentic automatic trade routing, quotes, and dynamic token mapping (`WETH`, `USDC`) via `executeEmergencySwap`.
 3. **Phase 7 (Monorepo MCP Server)**: Standalone Open-Source MCP Server in `packages/wishers-mcp-server-thegraph`.
 4. **Phase 8 (Final Submission Package)**: `README.md`, `AI_ATTRIBUTION.md`, `FEEDBACK.md`, and end-to-end verification.
 

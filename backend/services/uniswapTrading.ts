@@ -5,14 +5,16 @@ const CHAIN_ID = 84532;
 
 // Token Addresses for Base Sepolia
 const NATIVE_ETH_ADDRESS = '0x0000000000000000000000000000000000000000';
-// We use WETH because USDC lacks a stable liquidity pool on Base Sepolia testnet!
-const WETH_ADDRESS = '0x4200000000000000000000000000000000000006';
+const TOKEN_ADDRESS_MAP: Record<string, string> = {
+  'WETH': '0x4200000000000000000000000000000000000006',
+  'USDC': '0x036CBD53842c5426634e7929541eC2318f3dCF7e',
+};
 
 /**
  * Executes a real emergency swap using the Uniswap Trading API v1
  * on behalf of the user's Agent Wallet.
  */
-export async function executeEmergencySwap(wallet: ethers.Wallet, amountEth: string = '0.0001'): Promise<string | null> {
+export async function executeEmergencySwap(wallet: ethers.Wallet, amountEth: string, destinationSymbol: string): Promise<string | null> {
   const apiKey = process.env.UNISWAP_API_KEY;
   const treasuryAddress = process.env.WISHERS_TREASURY_ADDRESS || wallet.address;
 
@@ -21,8 +23,14 @@ export async function executeEmergencySwap(wallet: ethers.Wallet, amountEth: str
     return null;
   }
 
+  const tokenOutAddress = TOKEN_ADDRESS_MAP[destinationSymbol.toUpperCase()];
+  if (!tokenOutAddress) {
+    console.error(`❌ [Uniswap Trading] Unsupported destination token: ${destinationSymbol}`);
+    return null;
+  }
+
   try {
-    console.log(`[Uniswap Trading] 🔄 Fetching Quote for ${amountEth} ETH -> WETH...`);
+    console.log(`[Uniswap Trading] 🔄 Fetching Quote for ${amountEth} ETH -> ${destinationSymbol.toUpperCase()}...`);
     
     // Step 1: Fetch Quote from Uniswap API
     // We swap FROM Native ETH to skip the Permit2 approval flow!
@@ -31,7 +39,7 @@ export async function executeEmergencySwap(wallet: ethers.Wallet, amountEth: str
       tokenInChainId: CHAIN_ID,
       tokenOutChainId: CHAIN_ID,
       tokenIn: NATIVE_ETH_ADDRESS,
-      tokenOut: WETH_ADDRESS,
+      tokenOut: tokenOutAddress,
       amount: ethers.parseEther(amountEth).toString(), // Convert ETH to Wei
       swapper: wallet.address,
       slippageTolerance: 0.5,

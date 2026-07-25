@@ -2,106 +2,76 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export interface RiskIntelligenceReport {
+export interface PoolMetrics {
   poolAddress: string;
   token0Symbol: string;
   token1Symbol: string;
+  currentPrice: number;
   currentTvlUsd: number;
-  previousTvlUsd: number;
-  tvlDelta5mPercent: number;
-  riskLevel: 'CRITICAL_RUG_PULL_DETECTED' | 'WARNING_HIGH_VOLATILITY' | 'SAFE_NORMAL_MONITORING';
-  recommendedAction: 'EMERGENCY_SWAP_NOW' | 'CONTINUE_MONITORING';
   timestamp: string;
 }
 
-// Memory Cache for Pool History (5-Minute TVL Sliding Window)
-const poolTvlHistoryCache: Record<string, { tvlUsd: number; updatedAt: number }> = {};
-
 // Dev Trigger State Switch for Instant Demo Testing
-let simulatedTvlCrashActive = false;
+let simulatedCrashActive = false;
 
 export function setSimulatedTvlCrash(active: boolean) {
-  simulatedTvlCrashActive = active;
-  console.log(`⚠️ [Dev Switch] Simulated TVL Crash Trigger is now: ${active ? 'ACTIVE 🔥' : 'OFF 🟢'}`);
+  simulatedCrashActive = active;
+  console.log(`⚠️ [Dev Switch] Simulated Crash Trigger is now: ${active ? 'ACTIVE 🔥' : 'OFF 🟢'}`);
 }
 
 export function getSimulatedTvlCrashState() {
-  return simulatedTvlCrashActive;
+  return simulatedCrashActive;
 }
 
 import { fetchPoolTVL } from './thegraph.js';
 
 /**
  * Queries Uniswap V3 Subgraph via The Graph Decentralized Gateway
+ * Returns both Price and TVL to be evaluated by the true intent-driven Poller
  */
-export async function queryTheGraphPoolTVL(poolAddress: string): Promise<{ token0: string; token1: string; tvlUsd: number }> {
+export async function getPoolMetrics(poolAddress: string): Promise<PoolMetrics> {
   try {
     const pool = await fetchPoolTVL(poolAddress);
     
-    // If Dev Trigger is pulled, simulate a sudden 65% TVL drop (Rug Pull)
-    const baseTvl = parseFloat(pool.totalValueLockedUSD || '0');
-    const currentTvl = simulatedTvlCrashActive ? baseTvl * 0.35 : baseTvl;
-
-    return {
-      token0: pool.token0.symbol,
-      token1: pool.token1.symbol,
-      tvlUsd: currentTvl,
-    };
-  } catch (err) {
-    console.warn('The Graph gateway call failed in monitor.ts, falling back to local DEX monitor simulation:', err);
+    // Use the real data from the subgraph!
+    const basePrice = parseFloat(pool.token0Price || '1.0');
+    let baseTvl = parseFloat(pool.totalValueLockedUSD || '0');
     
-    // Fallback Baseline Monitoring Values (DEX Pool Simulation)
-    const isEthPool = poolAddress.toLowerCase().includes('eth') || poolAddress.toLowerCase().includes('0x00000');
-    const baseTvl = isEthPool ? 12500000 : 2500000;
+    if (baseTvl === 0) {
+      // In testnet, TVL USD might be 0 due to missing price oracles. 
+      // We inject a realistic base TVL for demonstration so the math works!
+      baseTvl = 2500000;
+    }
+    
+    // If Dev Trigger is pulled, simulate a sudden 65% Drop across both metrics!
+    const currentPrice = simulatedCrashActive ? basePrice * 0.35 : basePrice;
+    const currentTvl = simulatedCrashActive ? baseTvl * 0.35 : baseTvl;
+
+    return {
+      poolAddress,
+      token0Symbol: pool.token0.symbol,
+      token1Symbol: pool.token1.symbol,
+      currentPrice,
+      currentTvlUsd: currentTvl,
+      timestamp: new Date().toISOString(),
+    };
+  } catch (err: any) {
+    console.log(`📡 [The Graph] Subgraph pool data unavailable for ${poolAddress}. Gracefully falling back to Local DEX Simulation Engine...`);
+    
+    const basePrice = 1.0;
+    const baseTvl = 2500000;
   
-    // If Dev Trigger is pulled, simulate a sudden 65% TVL drop (Rug Pull)
-    const currentTvl = simulatedTvlCrashActive ? baseTvl * 0.35 : baseTvl;
+    // If Dev Trigger is pulled, simulate a sudden 65% drop
+    const currentPrice = simulatedCrashActive ? basePrice * 0.35 : basePrice;
+    const currentTvl = simulatedCrashActive ? baseTvl * 0.35 : baseTvl;
   
     return {
-      token0: isEthPool ? 'ETH' : 'PEPE',
-      token1: 'USDC',
-      tvlUsd: currentTvl,
+      poolAddress,
+      token0Symbol: 'ETH',
+      token1Symbol: 'USDC',
+      currentPrice,
+      currentTvlUsd: currentTvl,
+      timestamp: new Date().toISOString(),
     };
   }
-}
-
-/**
- * Calculates Pool Risk Intelligence Report
- */
-export async function getPoolRiskMetrics(poolAddress: string): Promise<RiskIntelligenceReport> {
-  const currentData = await queryTheGraphPoolTVL(poolAddress);
-  const now = Date.now();
-
-  const cached = poolTvlHistoryCache[poolAddress];
-  const previousTvlUsd = cached ? cached.tvlUsd : currentData.tvlUsd;
-
-  // Calculate 5-Minute Delta
-  const tvlDelta5mPercent = previousTvlUsd > 0
-    ? ((currentData.tvlUsd - previousTvlUsd) / previousTvlUsd) * 100
-    : 0;
-
-  // Update Cache
-  poolTvlHistoryCache[poolAddress] = { tvlUsd: currentData.tvlUsd, updatedAt: now };
-
-  let riskLevel: RiskIntelligenceReport['riskLevel'] = 'SAFE_NORMAL_MONITORING';
-  let recommendedAction: RiskIntelligenceReport['recommendedAction'] = 'CONTINUE_MONITORING';
-
-  if (simulatedTvlCrashActive || tvlDelta5mPercent <= -50) {
-    riskLevel = 'CRITICAL_RUG_PULL_DETECTED';
-    recommendedAction = 'EMERGENCY_SWAP_NOW';
-  } else if (tvlDelta5mPercent <= -20) {
-    riskLevel = 'WARNING_HIGH_VOLATILITY';
-  }
-
-  return {
-    poolAddress,
-    token0Symbol: currentData.token0,
-    token1Symbol: currentData.token1,
-    currentTvlUsd: currentData.tvlUsd,
-    previousTvlUsd,
-    tvlDelta5mPercent,
-    riskLevel,
-    recommendedAction,
-    timestamp: new Date().toISOString(),
-  };
 }

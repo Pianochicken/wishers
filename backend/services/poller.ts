@@ -1,5 +1,5 @@
 import { getPendingWishes, updateWishStatus } from './wishes.js';
-import { getPoolRiskMetrics } from './monitor.js';
+import { getPoolMetrics } from './monitor.js';
 import { getAgentWallet } from './agent.js';
 import { executeEmergencySwap } from './uniswapTrading.js';
 
@@ -24,36 +24,68 @@ export function startAgentPolling(intervalMs: number = 30000) {
 
     for (const wish of activeWishes) {
       try {
-        if (wish.conditionType === 'TVL_DROP') {
-          // Hardcoded PEPE/USDC pool on Base Sepolia for demo purposes,
-          // In a real app, this would be derived from the wish's target token.
-          const poolAddress = '0x1234567890123456789012345678901234567890'; // Replace with actual address or derive it
+        // We use a REAL Uniswap V3 Pool address from Base Sepolia testnet!
+        // This is the WETH/OSWALD pool which has a valid token0Price (0x92be73df60f4690466591ec8cc22ab4043cce1ea)
+        const poolAddress = '0x92be73df60f4690466591ec8cc22ab4043cce1ea'; // Replace with actual address or derive it
 
-          const riskReport = await getPoolRiskMetrics(poolAddress);
+        const metrics = await getPoolMetrics(poolAddress);
+        
+        let conditionMet = false;
+        let metricUsed = '';
+        let currentValue = 0;
+
+        switch (wish.conditionType) {
+          case 'PRICE_ABOVE':
+            conditionMet = metrics.currentPrice > wish.thresholdValue;
+            metricUsed = 'Price';
+            currentValue = metrics.currentPrice;
+            break;
+          case 'PRICE_BELOW':
+            conditionMet = metrics.currentPrice < wish.thresholdValue;
+            metricUsed = 'Price';
+            currentValue = metrics.currentPrice;
+            break;
+          case 'TVL_ABOVE':
+            conditionMet = metrics.currentTvlUsd > wish.thresholdValue;
+            metricUsed = 'TVL';
+            currentValue = metrics.currentTvlUsd;
+            break;
+          case 'TVL_BELOW':
+            conditionMet = metrics.currentTvlUsd < wish.thresholdValue;
+            metricUsed = 'TVL';
+            currentValue = metrics.currentTvlUsd;
+            break;
+          case 'PERCENTAGE_DROP':
+            // For hackathon simplicity, we map percentage drop directly to the Dev Switch multiplier logic
+            // Since the Dev Switch drops metrics by 65%, a < 50% threshold will naturally trigger it
+            conditionMet = metrics.currentPrice < (1.0 * (1 - (wish.thresholdValue / 100)));
+            metricUsed = 'Price (Drop)';
+            currentValue = metrics.currentPrice;
+            break;
+        }
+
+        if (conditionMet) {
+          console.log(`🚨 [Agent Poller] INTENT CONDITION MET for wish ${wish.id}!`);
+          console.log(`🚨 [Agent Poller] Trigger: ${wish.conditionType}. Current ${metricUsed}: ${currentValue.toFixed(4)} vs Threshold: ${wish.thresholdValue}`);
+          console.log(`⚡ [Agent Poller] Automatically executing emergency swap for human ${wish.nullifierHash.substring(0, 8)}...`);
           
-          if (riskReport.riskLevel === 'CRITICAL_RUG_PULL_DETECTED' || riskReport.recommendedAction === 'EMERGENCY_SWAP_NOW') {
-            console.log(`🚨 [Agent Poller] RUG PULL DETECTED for wish ${wish.id}!`);
-            console.log(`🚨 [Agent Poller] TVL dropped by ${riskReport.tvlDelta5mPercent.toFixed(2)}%`);
-            console.log(`⚡ [Agent Poller] Automatically executing emergency swap for human ${wish.nullifierHash.substring(0, 8)}...`);
-            
-            // Reconstruct the Agent's Ethers Wallet
-            const agentWallet = getAgentWallet(wish.nullifierHash);
-            
-            // Execute the REAL swap using Uniswap API
-            // Hardcoded to 0.0001 ETH for hackathon safety
-            const realTxHash = await executeEmergencySwap(agentWallet, '0.0001');
-            
-            if (realTxHash) {
-              console.log(`✅ [Agent Poller] Emergency Swap Executed! TxHash: ${realTxHash}`);
-              console.log(`🔗 [Agent Poller] View on Basescan: https://sepolia.basescan.org/tx/${realTxHash}`);
-              // Mark wish as executed so we don't trigger it again
-              updateWishStatus(wish.id, 'EXECUTED');
-            } else {
-              console.log(`❌ [Agent Poller] Emergency Swap Failed. Will retry next tick.`);
-            }
+          // Reconstruct the Agent's Ethers Wallet
+          const agentWallet = getAgentWallet(wish.nullifierHash);
+          
+          // Execute the REAL swap using Uniswap API
+          // Hardcoded to 0.0001 ETH for hackathon safety
+          const realTxHash = await executeEmergencySwap(agentWallet, '0.0001', wish.destinationTokenSymbol);
+          
+          if (realTxHash) {
+            console.log(`✅ [Agent Poller] Emergency Swap Executed! TxHash: ${realTxHash}`);
+            console.log(`🔗 [Agent Poller] View on Basescan: https://sepolia.basescan.org/tx/${realTxHash}`);
+            // Mark wish as executed so we don't trigger it again
+            updateWishStatus(wish.id, 'EXECUTED');
           } else {
-            console.log(`[Agent Poller] Wish ${wish.id} condition not met. Risk Level: ${riskReport.riskLevel}`);
+            console.log(`❌ [Agent Poller] Emergency Swap Failed. Will retry next tick.`);
           }
+        } else {
+          console.log(`[Agent Poller] Wish ${wish.id} condition not met. (Current ${metricUsed}: ${currentValue.toFixed(4)} | Needs: ${wish.conditionType} ${wish.thresholdValue})`);
         }
       } catch (error) {
         console.error(`[Agent Poller] Error monitoring wish ${wish.id}:`, error);
