@@ -8,7 +8,7 @@ WISHERS integrates **Uniswap Trading API v1** (`https://trade-api.gateway.uniswa
 ---
 
 ## 2. Uniswap Trading API Integration Highlights
-- **Quote & Route Generation**: Utilized `/v1/quote` (EXACT_INPUT) for computing price impact and execution paths across V2 and V3 pools on Base Sepolia.
+- **Quote & Route Generation**: Utilized `/v1/quote` (EXACT_INPUT) for computing price impact and execution paths across V2 and V3 pools on World Chain Mainnet.
 - **Native ETH Optimization**: Swaps using Native ETH (`0x0000000000000000000000000000000000000000`) skip Permit2 approval overhead, accelerating user onboarding.
 
 ---
