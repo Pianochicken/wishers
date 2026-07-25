@@ -20,7 +20,7 @@
 
 ## 🎯 Completed Milestones
 1. ✅ **Git Infrastructure**: Initialized Git repository, `.gitignore`, and set up `develop` branch tracking `origin/develop`.
-2. ✅ **npm Workspaces Monorepo Architecture**: Clean separation into `frontend/`, `backend/`, and `packages/wishers-mcp-server-thegraph/`.
+2. ✅ **npm Workspaces Monorepo Architecture**: Clean separation into `frontend/` and `backend/`.
 3. ✅ **Phase 1 Setup Scaffold**: Vite React + Express API with `/api/health` and Palette C UI tokens (`#E0E7FF`, `#38BDF8`).
 4. ✅ **Phase 2 World ID Gate (Verified 🎉)**: Verified live on physical phone via World App!
 5. ✅ **Phase 3 Cyberpunk Wishing Well UX & 3-Layer AI Engine**: `backend/routes/ai.ts`, `<WishChat.tsx />`, `<WishingWell.tsx />` with 3D coin tossing & water ripple animations.
@@ -30,7 +30,7 @@
    - `frontend/src/components/WishCard.tsx`: Dynamic **Rug Pull Shield Red Pulsing Alert UI Card** (`🚨 CRITICAL RUG PULL DETECTED (-65%)`) with automatic Agent emergency protection trigger!
 8. ✅ **Phase 6 AI Agent Background Polling Engine (True Intent-Driven Architecture)**:
    - `backend/services/wishes.ts` (State Manager), `backend/services/poller.ts` (10s recursive interval).
-   - Removed hardcoded "Risk Levels". The Poller now dynamically evaluates exact AI intents (`PRICE_ABOVE`, `TVL_BELOW`, etc.) against LIVE metrics from The Graph (WETH/OSWALD pool on Base Sepolia).
+   - Removed hardcoded "Risk Levels". The Poller now dynamically evaluates exact AI intents (`PRICE_ABOVE`, `TVL_BELOW`, etc.) against LIVE metrics from The Graph (WETH/USDC pool on Ethereum Mainnet).
    - Replaced fake data injection with authentic, dynamic Swap routing (supporting both `WETH` and `USDC` based on `wish.destinationTokenSymbol`).
 9. ✅ **Phase 8 AgentKit Integration (AgentKit New Use Cases Prize)**:
    - Successfully integrated `@worldcoin/agentkit`.
@@ -45,7 +45,7 @@
    - ✅ **World ID**: Frontend Gate implemented, Agent Wallet delegation prepared.
    - ✅ **The Graph**: Upgraded to query the massive Ethereum Mainnet Uniswap V3 Subgraph (USDC/WETH) for real-world TVL USD and Price tracking, removing the need for testnet mock data.
    - ✅ **Uniswap**: Integrated authentic automatic trade routing, quotes, and dynamic token mapping (`WETH`, `USDC`) via `executeEmergencySwap`.
-   - ✅ **True State Sync**: Replaced frontend mock execution buttons with live backend polling (`/api/wishes/:nullifier`). `WishCard` now automatically reacts to Agent Poller executions and displays real TxHashes linking to BaseScan.
+   - ✅ **True State Sync**: Replaced frontend mock execution buttons with live backend polling (`/api/wishes/:nullifier`). `WishCard` now automatically reacts to Agent Poller executions and displays real TxHashes linking to Worldscan.
 3. **Phase 8 (Final Submission Package)**: `README.md`, `AI_ATTRIBUTION.md`, `FEEDBACK.md`, and end-to-end verification.
 
 ## 📂 Architecture Reference

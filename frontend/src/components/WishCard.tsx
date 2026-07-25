@@ -6,13 +6,11 @@ import { VerifiedHuman } from './WorldIDGate';
 interface WishCardProps {
   wish: ParsedWish;
   verifiedHuman: VerifiedHuman | null;
-  connectedWalletAddress: string | null;
 }
 
 export default function WishCard({
   wish,
   verifiedHuman,
-  connectedWalletAddress,
 }: WishCardProps) {
   const [timeLeftStr, setTimeLeftStr] = useState<string>('');
   const [isExpired, setIsExpired] = useState<boolean>(false);
@@ -158,12 +156,12 @@ export default function WishCard({
               <span>Shield Protected & Swapped by Agent</span>
             </div>
             <a
-              href={`https://sepolia.basescan.org/tx/${wish.txHash}`}
+              href={`https://worldscan.org/tx/${wish.txHash}`}
               target="_blank"
               rel="noreferrer"
               style={{ color: 'var(--color-accent-primary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '2px' }}
             >
-              <span>BaseScan</span>
+              <span>Worldscan</span>
               <ExternalLink size={12} />
             </a>
           </div>

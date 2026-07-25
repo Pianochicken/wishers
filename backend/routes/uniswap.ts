@@ -125,7 +125,7 @@ router.post('/swap', async (req: Request, res: Response) => {
       amountSwapped: wish?.actionAmount || '0.001',
       gasCostEstimate: '$1.45',
       executedByAgentWallet: agentWallet,
-      basescanUrl: `https://sepolia.basescan.org/tx/${txHash}`,
+      worldscanUrl: `https://worldscan.org/tx/${txHash}`,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {

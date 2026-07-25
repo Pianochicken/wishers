@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, UserCheck, Bot, CheckCircle2, RefreshCw, QrCode, Zap } from 'lucide-react';
+import { ShieldCheck, UserCheck, Bot, CheckCircle2, RefreshCw, QrCode, Zap, LogOut } from 'lucide-react';
 import { IDKitWidget, VerificationLevel } from '@worldcoin/idkit';
 
 export interface VerifiedHuman {
@@ -18,7 +18,7 @@ export interface RpContext {
 }
 
 interface WorldIDGateProps {
-  onVerified: (human: VerifiedHuman) => void;
+  onVerified: (human: VerifiedHuman | null) => void;
   verifiedHuman: VerifiedHuman | null;
 }
 
@@ -134,6 +134,39 @@ export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGatePr
             </div>
           </div>
         </div>
+        
+        {/* Disconnect Button */}
+        <div style={{ flexShrink: 0 }}>
+          <button
+            onClick={() => onVerified(null)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '11px',
+              padding: '6px 12px',
+              borderRadius: '8px',
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              color: 'var(--color-text-secondary)',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 68, 68, 0.1)';
+              e.currentTarget.style.borderColor = 'rgba(255, 68, 68, 0.3)';
+              e.currentTarget.style.color = '#ff4444';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.color = 'var(--color-text-secondary)';
+            }}
+          >
+            <LogOut size={12} />
+            Disconnect
+          </button>
+        </div>
       </div>
     );
   }
@@ -148,7 +181,7 @@ export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGatePr
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-text-primary)', whiteSpace: 'nowrap' }}>
-              2. World ID Verification
+              World ID Verification
             </span>
             <button
               onClick={() => setMode(mode === 'world_app' ? 'simulator' : 'world_app')}

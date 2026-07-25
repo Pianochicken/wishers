@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import WorldIDGate, { VerifiedHuman } from './components/WorldIDGate';
-import WalletConnect from './components/WalletConnect';
 import PrayingHands from './components/PrayingHands';
 import WishChat, { ParsedWish } from './components/WishChat';
 
@@ -9,7 +8,6 @@ import WishCard from './components/WishCard';
 export default function App() {
   const [backendStatus, setBackendStatus] = useState<string>('checking...');
   const [verifiedHuman, setVerifiedHuman] = useState<VerifiedHuman | null>(null);
-  const [connectedWalletAddress, setConnectedWalletAddress] = useState<string | null>(null);
   const [activeWishList, setActiveWishList] = useState<ParsedWish[]>([]);
   const [activeView, setActiveView] = useState<'wishing' | 'wishes'>('wishing');
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
@@ -52,11 +50,13 @@ export default function App() {
     return () => clearInterval(interval);
   }, [verifiedHuman]);
 
-  const isStep1Complete = Boolean(connectedWalletAddress && verifiedHuman);
+  const isStep1Complete = Boolean(verifiedHuman);
 
   React.useEffect(() => {
     if (isStep1Complete && activeView === 'wishing') {
       setIsHandsOpen(true);
+    } else {
+      setIsHandsOpen(false);
     }
   }, [isStep1Complete, activeView]);
 
@@ -158,9 +158,8 @@ export default function App() {
       {/* ── Main Content Container ── */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 20px 20px' }}>
 
-      {/* ── Step 1 Authentication (Side-by-Side 800px) ── */}
-      <div style={{ maxWidth: '1000px', margin: '0 auto 4px', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '16px' }}>
-        <WalletConnect onWalletConnected={(addr) => setConnectedWalletAddress(addr)} />
+      {/* ── Step 1 Authentication (Centered 600px) ── */}
+      <div style={{ maxWidth: '600px', margin: '0 auto 4px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <WorldIDGate
           verifiedHuman={verifiedHuman}
           onVerified={(human) => setVerifiedHuman(human)}
@@ -180,7 +179,7 @@ export default function App() {
         }}>
           {isStep1Complete
             ? '✨ Wish Portal Opened — Make Your Wish'
-            : '🙏 Complete Wallet & World ID Verification to Open Portal'}
+            : '🙏 Complete World ID Verification to Open Wish Portal'}
         </span>
       </div>
 
@@ -255,7 +254,6 @@ export default function App() {
                   key={idx}
                   wish={wish}
                   verifiedHuman={verifiedHuman}
-                  connectedWalletAddress={connectedWalletAddress}
                 />
               ))}
             </div>
