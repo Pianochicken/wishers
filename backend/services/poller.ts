@@ -1,5 +1,7 @@
 import { getPendingWishes, updateWishStatus } from './wishes.js';
 import { getPoolRiskMetrics } from './monitor.js';
+import { getAgentWallet } from './agent.js';
+import { executeEmergencySwap } from './uniswapTrading.js';
 
 let pollingInterval: NodeJS.Timeout | null = null;
 
@@ -32,16 +34,23 @@ export function startAgentPolling(intervalMs: number = 30000) {
           if (riskReport.riskLevel === 'CRITICAL_RUG_PULL_DETECTED' || riskReport.recommendedAction === 'EMERGENCY_SWAP_NOW') {
             console.log(`🚨 [Agent Poller] RUG PULL DETECTED for wish ${wish.id}!`);
             console.log(`🚨 [Agent Poller] TVL dropped by ${riskReport.tvlDelta5mPercent.toFixed(2)}%`);
-            console.log(`⚡ [Agent Poller] Automatically executing emergency swap: ${wish.actionAmount} ${wish.targetTokenSymbol} -> ${wish.destinationTokenSymbol}`);
+            console.log(`⚡ [Agent Poller] Automatically executing emergency swap for human ${wish.nullifierHash.substring(0, 8)}...`);
             
-            // Execute the swap (Mocking the Uniswap REST API call for now to avoid actual transactions if not configured)
-            // In a full implementation, we would call the uniswap.ts service logic here using the user's Agent Wallet.
+            // Reconstruct the Agent's Ethers Wallet
+            const agentWallet = getAgentWallet(wish.nullifierHash);
             
-            const mockTxHash = `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`;
-            console.log(`✅ [Agent Poller] Emergency Swap Executed! TxHash: ${mockTxHash}`);
+            // Execute the REAL swap using Uniswap API
+            // Hardcoded to 0.0001 ETH for hackathon safety
+            const realTxHash = await executeEmergencySwap(agentWallet, '0.0001');
             
-            // Mark wish as executed so we don't trigger it again
-            updateWishStatus(wish.id, 'EXECUTED');
+            if (realTxHash) {
+              console.log(`✅ [Agent Poller] Emergency Swap Executed! TxHash: ${realTxHash}`);
+              console.log(`🔗 [Agent Poller] View on Basescan: https://sepolia.basescan.org/tx/${realTxHash}`);
+              // Mark wish as executed so we don't trigger it again
+              updateWishStatus(wish.id, 'EXECUTED');
+            } else {
+              console.log(`❌ [Agent Poller] Emergency Swap Failed. Will retry next tick.`);
+            }
           } else {
             console.log(`[Agent Poller] Wish ${wish.id} condition not met. Risk Level: ${riskReport.riskLevel}`);
           }

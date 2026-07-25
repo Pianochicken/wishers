@@ -48,7 +48,7 @@ export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGatePr
           rp_id: sigData.rp_id,
           isSimulator: true,
           idkitResponse: {
-            nullifier_hash: `0x${Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`,
+            nullifier_hash: 'mock_nullifier_123',
             verification_level: 'orb',
           },
         }),
@@ -105,6 +105,8 @@ export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGatePr
       });
 
       const data: VerifiedHuman = await verifyRes.json();
+      console.log('✅ [World ID] Verification Success!');
+      console.log('🔑 YOUR REAL NULLIFIER HASH (Copy this for curl):', data.nullifier);
       onVerified(data);
     } catch (err) {
       console.error('World ID Verification error:', err);
@@ -127,8 +129,8 @@ export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGatePr
                 {verifiedHuman.verificationLevel}
               </span>
             </div>
-            <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              Agent: <code style={{ color: 'var(--color-text-primary)' }}>{verifiedHuman.agentWallet.substring(0, 10)}...</code>
+            <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '4px', wordBreak: 'break-all' }}>
+              Agent: <code style={{ color: 'var(--color-text-primary)', userSelect: 'all' }}>{verifiedHuman.agentWallet}</code>
             </div>
           </div>
         </div>

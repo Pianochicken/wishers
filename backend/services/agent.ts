@@ -63,3 +63,14 @@ export function validateAgentSession(nullifierHash: string): { isValid: boolean;
 export function renewAgentSession(nullifierHash: string, durationHours = 24): AgentSession {
   return getOrCreateRealAgentWallet(nullifierHash, durationHours);
 }
+
+/**
+ * Reconstructs and returns the actual ethers.Wallet object for the Agent Session
+ * This is used to sign and send transactions on behalf of the user.
+ */
+export function getAgentWallet(nullifierHash: string): ethers.Wallet {
+  // Deterministic Private Key generated from RP_SIGNING_KEY + nullifierHash
+  const seedString = `${RP_SIGNING_KEY}:${nullifierHash}`;
+  const privateKey = ethers.keccak256(ethers.toUtf8Bytes(seedString));
+  return new ethers.Wallet(privateKey, provider);
+}
