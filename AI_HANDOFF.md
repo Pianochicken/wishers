@@ -24,7 +24,7 @@
 3. ✅ **Phase 1 Setup Scaffold**: Vite React + Express API with `/api/health` and Palette C UI tokens (`#E0E7FF`, `#38BDF8`).
 4. ✅ **Phase 2 World ID Gate (Verified 🎉)**: Verified live on physical phone via World App!
 5. ✅ **Phase 3 Cyberpunk Wishing Well UX & 3-Layer AI Engine**: `backend/routes/ai.ts`, `<WishChat.tsx />`, `<WishingWell.tsx />` with 3D coin tossing & water ripple animations.
-6. ✅ **Phase 4 Uniswap Trading API v1, RWA Stocks & Live Flywheel Hub**: `backend/routes/uniswap.ts`, `<WishCard.tsx />`, `<FlywheelHub.tsx />`, and `FEEDBACK.md`.
+6. ✅ **Phase 4 Uniswap Trading API v1 & Live Swap Execution**: `backend/routes/uniswap.ts`, `<WishCard.tsx />`, and `FEEDBACK.md`.
 7. ✅ **Phase 5 (Part 1 & 2) The Graph TVL Monitor & Rug Pull Shield UI**:
    - `backend/services/monitor.ts` & `backend/routes/debug.ts`: The Graph Subgraph TVL monitoring loop & `/api/debug/simulate-tvl-drop` switch.
    - `frontend/src/components/WishCard.tsx`: Dynamic **Rug Pull Shield Red Pulsing Alert UI Card** (`🚨 CRITICAL RUG PULL DETECTED (-65%)`) with automatic Agent emergency protection trigger!

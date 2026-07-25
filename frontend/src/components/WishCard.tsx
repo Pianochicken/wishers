@@ -171,8 +171,7 @@ export default function WishCard({
             TxHash: <code style={{ color: 'var(--color-text-primary)' }}>{wish.txHash.substring(0, 18)}...</code>
           </div>
           <div style={{ color: 'var(--color-text-secondary)', fontSize: '11px' }}>
-            {/* Keeping format similar but dynamic fee extraction removed since it's backend-executed now. We can just show standard format. */}
-            0.1% Integrator Fee Collected &rarr; Flywheel Hub
+            Transaction executed automatically by WISHERS Agent.
           </div>
         </div>
       ) : isExpired && !isExecuted ? (

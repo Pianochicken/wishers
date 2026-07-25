@@ -134,44 +134,44 @@ Return ONLY valid JSON.`,
     // Fallback if LLM failed or isn't configured
     if (!parsedResult) {
       const lowerPrompt = prompt.toLowerCase();
-      if (lowerPrompt.includes('pepe') && (lowerPrompt.includes('tvl') || lowerPrompt.includes('drop') || lowerPrompt.includes('rug'))) {
+      if (lowerPrompt.includes('eth') && lowerPrompt.includes('usdc') && (lowerPrompt.includes('tvl') || lowerPrompt.includes('drop'))) {
         parsedResult = {
           conditionType: 'PERCENTAGE_DROP',
-          targetTokenSymbol: 'PEPE',
+          targetTokenSymbol: 'ETH',
           thresholdValue: 50, // 50% TVL drop
           thresholdUnit: '%',
           actionType: 'SWAP',
           actionAmount: 'ALL',
           destinationTokenSymbol: 'USDC',
-          humanReadableSummary: 'Sell all PEPE for USDC if PEPE/USDC pool TVL drops 50%',
+          humanReadableSummary: 'Sell all ETH for USDC if ETH/USDC pool TVL drops 50%',
         };
-      } else if (lowerPrompt.includes('nvda') || lowerPrompt.includes('nvidia') || lowerPrompt.includes('stock')) {
+      } else if (lowerPrompt.includes('weth') || lowerPrompt.includes('wrap')) {
         parsedResult = {
-          conditionType: 'PRICE_BELOW',
-          targetTokenSymbol: 'ETH',
-          thresholdValue: 3000, // $3000 ETH
+          conditionType: 'TVL_ABOVE',
+          targetTokenSymbol: 'WETH',
+          thresholdValue: 200000000, // $200M
           thresholdUnit: '$',
           actionType: 'SWAP',
-          actionAmount: '100', // 100 USDC
-          destinationTokenSymbol: 'dNVDA',
-          humanReadableSummary: 'Hedge into Tokenized Nvidia Stock (dNVDA) if ETH dips below $3,000',
+          actionAmount: 'ALL',
+          destinationTokenSymbol: 'WETH',
+          humanReadableSummary: 'Wrap ETH to WETH if the WETH pool TVL rises above $200,000,000',
         };
-      } else if (lowerPrompt.includes('usdt') || lowerPrompt.includes('depeg')) {
+      } else if (lowerPrompt.includes('usdc') && lowerPrompt.includes('drop')) {
         parsedResult = {
-          conditionType: 'PRICE_BELOW',
-          targetTokenSymbol: 'USDT',
-          thresholdValue: 0.992,
+          conditionType: 'TVL_BELOW',
+          targetTokenSymbol: 'WETH',
+          thresholdValue: 100000000,
           thresholdUnit: '$',
           actionType: 'SWAP',
           actionAmount: 'ALL',
           destinationTokenSymbol: 'USDC',
-          humanReadableSummary: 'Swap USDT to USDC if USDT price depegs below $0.992',
+          humanReadableSummary: 'Emergency swap ETH to USDC if the WETH pool TVL drops below $100,000,000',
         };
       } else {
         // General default parsing
         parsedResult = {
           conditionType: 'PERCENTAGE_DROP',
-          targetTokenSymbol: 'PEPE',
+          targetTokenSymbol: 'ETH',
           thresholdValue: 30,
           thresholdUnit: '%',
           actionType: 'SWAP',

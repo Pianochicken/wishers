@@ -30,24 +30,7 @@ export default function WishChat({ verifiedHuman, onWishConfirmed }: WishChatPro
   const [loading, setLoading] = useState(false);
   const [parsedWish, setParsedWish] = useState<ParsedWish | null>(null);
 
-  // Dual-Tier Smart Preset Wish Chips (Using ETH & Mock Tokens)
-  const trendingChips = [
-    {
-      icon: <ShieldAlert size={14} color="var(--color-danger)" />,
-      label: '🛡️ Shield ETH: Swap to USDC if TVL drops 50%',
-      prompt: 'If ETH/USDC pool TVL drops 50%, sell all my ETH for MockUSDC',
-    },
-    {
-      icon: <TrendingUp size={14} color="var(--color-accent-primary)" />,
-      label: '📈 RWA Hedge: Buy Nvidia Stock (dNVDA) if ETH < $3000',
-      prompt: 'If ETH dips below $3,000, buy tokenized Nvidia stock (dNVDA)',
-    },
-    {
-      icon: <DollarSign size={14} color="var(--color-warning)" />,
-      label: '💵 Depeg Guard: Swap USDT to USDC if < $0.992',
-      prompt: 'If USDT drops below $0.992, emergency swap USDT to MockUSDC',
-    },
-  ];
+
 
   const handleParseWish = async (promptText: string) => {
     if (!promptText.trim()) return;
@@ -199,40 +182,7 @@ export default function WishChat({ verifiedHuman, onWishConfirmed }: WishChatPro
         </div>
       </div>
 
-      {/* ── Smart Presets Section (Temporarily hidden for testing flip) ── */}
-      <div style={{ display: 'none', opacity: parsedWish ? 0 : 1, transition: 'opacity 0.4s', pointerEvents: parsedWish ? 'none' : 'auto' }}>
-        <div style={{ fontSize: '11px', fontWeight: '700', color: 'var(--color-text-secondary)', marginBottom: '8px', paddingLeft: '4px' }}>
-          🔥 SMART PRESETS
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {trendingChips.map((chip, idx) => (
-            <button
-              key={idx}
-              onClick={() => {
-                setInputPrompt(chip.prompt);
-                // Just populate input, do not submit automatically
-              }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '12px 14px',
-                borderRadius: '12px',
-                background: 'rgba(255, 255, 255, 0.025)',
-                border: '1px solid var(--color-border)',
-                color: 'var(--color-text-primary)',
-                fontSize: '12px',
-                textAlign: 'left',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              {chip.icon}
-              <span style={{ flex: 1, fontWeight: '500' }}>{chip.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+
     </div>
   );
 }

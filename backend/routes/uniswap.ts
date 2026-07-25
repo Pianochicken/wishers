@@ -17,13 +17,8 @@ export const TOKEN_ADDRESSES: Record<string, { address: string; name: string; is
   },
   USDC: {
     address: '0x036CBD53842c5426634e7929541eC2318f3dCF7e',
-    name: 'Mock USD Coin',
-    isMock: true,
-  },
-  dNVDA: {
-    address: '0xMockNVDA_Robinhood_RWA_BaseSepolia',
-    name: 'Mock Tokenized Nvidia Stock (Robinhood RWA)',
-    isMock: true,
+    name: 'USD Coin',
+    isMock: false,
   },
 };
 

@@ -46,9 +46,6 @@ export async function executeEmergencySwap(wallet: ethers.Wallet, amountEth: str
       protocols: ['V2', 'V3'],
       routingPreference: 'BEST_PRICE',
       urgency: 'normal',
-      // Integrator Fee configuration (if supported via body in this version, else it uses API Hub settings)
-      portionBips: 10,
-      portionRecipient: treasuryAddress,
     };
 
     const quoteResponse = await fetch('https://trade-api.gateway.uniswap.org/v1/quote', {

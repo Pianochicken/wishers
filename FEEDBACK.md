@@ -3,17 +3,13 @@
 ## 1. Project Overview
 **WISHERS** is a Human-Anchored AI Execution Agent built for ETHGlobal Lisbon 2026. It empowers verified humans (via World ID) to express natural language financial wishes (e.g. *"Sell ETH to USDC if TVL drops 50%"* or *"Hedge into Tokenized Nvidia Stock dNVDA if ETH dips below $3000"*).
 
-WISHERS integrates **Uniswap Trading API v1** (`https://trade-api.gateway.uniswap.org/v1`) for quote calculation, route generation, and automated 0.1% `integratorFee` collection to fund our 3-Way Sponsor Flywheel.
+WISHERS integrates **Uniswap Trading API v1** (`https://trade-api.gateway.uniswap.org/v1`) for quote calculation, route generation, and automated trade execution.
 
 ---
 
 ## 2. Uniswap Trading API Integration Highlights
-- **Quote & Route Generation**: Utilized `/v1/quote` (EXACT_INPUT) for computing price impact and execution paths across V2, V3, and V4 pools on Base Sepolia.
+- **Quote & Route Generation**: Utilized `/v1/quote` (EXACT_INPUT) for computing price impact and execution paths across V2 and V3 pools on Base Sepolia.
 - **Native ETH Optimization**: Swaps using Native ETH (`0x0000000000000000000000000000000000000000`) skip Permit2 approval overhead, accelerating user onboarding.
-- **Monetization via `integratorFee`**: Configured 10 bips (0.1%) fee split directly benefiting:
-  1. 40% LLM Gas Treasury (OpenAI/Groq).
-  2. 30% Sponsor Token Buyback ($UNI, $WLD, $GRT).
-  3. 30% UBA Human Yield Pool.
 
 ---
 
