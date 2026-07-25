@@ -29,61 +29,40 @@ export function getSimulatedTvlCrashState() {
   return simulatedTvlCrashActive;
 }
 
+import { fetchPoolTVL } from './thegraph.js';
+
 /**
  * Queries Uniswap V3 Subgraph via The Graph Decentralized Gateway
  */
 export async function queryTheGraphPoolTVL(poolAddress: string): Promise<{ token0: string; token1: string; tvlUsd: number }> {
-  const apiKey = process.env.THE_GRAPH_API_KEY;
-  const subgraphId = process.env.THE_GRAPH_SUBGRAPH_ID || 'G3FPDaq8KdDqwa33Q8P8A4EwM91aZfH7gG8rE7wE4B8L';
+  try {
+    const pool = await fetchPoolTVL(poolAddress);
+    
+    // If Dev Trigger is pulled, simulate a sudden 65% TVL drop (Rug Pull)
+    const baseTvl = parseFloat(pool.totalValueLockedUSD || '0');
+    const currentTvl = simulatedTvlCrashActive ? baseTvl * 0.35 : baseTvl;
 
-  if (apiKey && apiKey !== 'your_the_graph_api_key') {
-    try {
-      const endpoint = `https://gateway.thegraph.com/api/${apiKey}/subgraphs/id/${subgraphId}`;
-      const query = `
-        query GetPoolTVL($poolAddress: ID!) {
-          pool(id: $poolAddress) {
-            id
-            token0 { symbol }
-            token1 { symbol }
-            totalValueLockedUSD
-          }
-        }
-      `;
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, variables: { poolAddress: poolAddress.toLowerCase() } }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const pool = data?.data?.pool;
-        if (pool) {
-          return {
-            token0: pool.token0?.symbol || 'ETH',
-            token1: pool.token1?.symbol || 'USDC',
-            tvlUsd: parseFloat(pool.totalValueLockedUSD || '5000000'),
-          };
-        }
-      }
-    } catch (err) {
-      console.warn('The Graph gateway call fallback to local DEX monitor:', err);
-    }
+    return {
+      token0: pool.token0.symbol,
+      token1: pool.token1.symbol,
+      tvlUsd: currentTvl,
+    };
+  } catch (err) {
+    console.warn('The Graph gateway call failed in monitor.ts, falling back to local DEX monitor simulation:', err);
+    
+    // Fallback Baseline Monitoring Values (DEX Pool Simulation)
+    const isEthPool = poolAddress.toLowerCase().includes('eth') || poolAddress.toLowerCase().includes('0x00000');
+    const baseTvl = isEthPool ? 12500000 : 2500000;
+  
+    // If Dev Trigger is pulled, simulate a sudden 65% TVL drop (Rug Pull)
+    const currentTvl = simulatedTvlCrashActive ? baseTvl * 0.35 : baseTvl;
+  
+    return {
+      token0: isEthPool ? 'ETH' : 'PEPE',
+      token1: 'USDC',
+      tvlUsd: currentTvl,
+    };
   }
-
-  // Fallback Baseline Monitoring Values (DEX Pool Simulation)
-  const isEthPool = poolAddress.toLowerCase().includes('eth') || poolAddress.toLowerCase().includes('0x00000');
-  const baseTvl = isEthPool ? 12500000 : 2500000;
-
-  // If Dev Trigger is pulled, simulate a sudden 65% TVL drop (Rug Pull)
-  const currentTvl = simulatedTvlCrashActive ? baseTvl * 0.35 : baseTvl;
-
-  return {
-    token0: isEthPool ? 'ETH' : 'PEPE',
-    token1: 'USDC',
-    tvlUsd: currentTvl,
-  };
 }
 
 /**

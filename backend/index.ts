@@ -8,6 +8,8 @@ import aiRouter from './routes/ai';
 import uniswapRouter from './routes/uniswap';
 import debugRouter from './routes/debug';
 import thegraphRouter from './routes/thegraph';
+import { startAgentPolling } from './services/poller.js';
+import { addWish, getPendingWishes } from './services/wishes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,6 +41,24 @@ app.use('/api/uniswap', uniswapRouter);
 app.use('/api/debug', debugRouter);
 app.use('/api/thegraph', thegraphRouter);
 
+// Wishes API
+app.post('/api/wishes', (req: Request, res: Response) => {
+  try {
+    const { wish, nullifierHash } = req.body;
+    if (!wish || !nullifierHash) {
+      return res.status(400).json({ error: 'wish and nullifierHash are required' });
+    }
+    const newWish = addWish({ ...wish, nullifierHash });
+    res.json({ status: 'success', wish: newWish });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Failed to add wish', details: error.message });
+  }
+});
+
+app.get('/api/wishes', (req: Request, res: Response) => {
+  res.json({ status: 'success', activeWishes: getPendingWishes() });
+});
+
 // Healthcheck Route
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({
@@ -53,6 +73,9 @@ app.get('/api/health', (req: Request, res: Response) => {
 // Start Express Server explicitly on IPv4 (0.0.0.0)
 const server = app.listen(PORT, HOST, () => {
   console.log(`🚀 WISHERS Express Backend listening on http://localhost:${PORT}`);
+  
+  // Start the background AI Agent Polling Mechanism
+  startAgentPolling(30000); // 30 seconds for demo purposes
 });
 
 // Graceful Port Cleanup on Hot Reload / Shutdown

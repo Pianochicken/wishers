@@ -28,6 +28,9 @@
 7. ✅ **Phase 5 (Part 1 & 2) The Graph TVL Monitor & Rug Pull Shield UI**:
    - `backend/services/monitor.ts` & `backend/routes/debug.ts`: The Graph Subgraph TVL monitoring loop & `/api/debug/simulate-tvl-drop` switch.
    - `frontend/src/components/WishCard.tsx`: Dynamic **Rug Pull Shield Red Pulsing Alert UI Card** (`🚨 CRITICAL RUG PULL DETECTED (-65%)`) with automatic Agent emergency protection trigger!
+8. ✅ **Phase 6 (Part 1) AI Agent Background Polling Engine**:
+   - `backend/services/wishes.ts` (State Manager), `backend/services/poller.ts` (10s recursive interval).
+   - Replaced mock TVL monitor with actual on-chain Subgraph queries via `backend/services/thegraph.ts` and `GET /api/thegraph/pool/:address`.
 
 ---
 
