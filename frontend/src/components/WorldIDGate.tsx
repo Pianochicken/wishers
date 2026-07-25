@@ -139,16 +139,16 @@ export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGatePr
   }
 
   return (
-    <div className="glass-card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+    <div className="glass-card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', height: '100%' }}>
       {/* Left Details */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1 }}>
         <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(56, 189, 248, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(56, 189, 248, 0.3)', flexShrink: 0 }}>
           <ShieldCheck size={18} color="var(--color-accent-primary)" />
         </div>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-text-primary)', whiteSpace: 'nowrap' }}>
-              World ID Verification
+              2. World ID Verification
             </span>
             <button
               onClick={() => setMode(mode === 'world_app' ? 'simulator' : 'world_app')}
@@ -162,13 +162,14 @@ export default function WorldIDGate({ onVerified, verifiedHuman }: WorldIDGatePr
                 color: mode === 'world_app' ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
                 cursor: 'pointer',
                 fontWeight: '600',
+                whiteSpace: 'nowrap',
               }}
             >
               {mode === 'world_app' ? '📱 Official QR' : '⚡ Demo Mode'}
             </button>
           </div>
           <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            Prove human proof to unlock AI Agent
+            Prove humanity to unlock Agent
           </div>
         </div>
       </div>

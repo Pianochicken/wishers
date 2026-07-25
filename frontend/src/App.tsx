@@ -12,6 +12,7 @@ export default function App() {
   const [connectedWalletAddress, setConnectedWalletAddress] = useState<string | null>(null);
   const [activeWishList, setActiveWishList] = useState<ParsedWish[]>([]);
   const [isSimulatedCrashActive, setIsSimulatedCrashActive] = useState<boolean>(false);
+  const [activeView, setActiveView] = useState<'wishing' | 'wishes'>('wishing');
 
   useEffect(() => {
     fetch('/api/health')
@@ -91,28 +92,46 @@ export default function App() {
           </div>
         </div>
 
-        {/* Online Agent Breathing Badge */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          background: 'rgba(255, 255, 255, 0.04)',
-          padding: '6px 14px',
-          borderRadius: '20px',
-          border: '1px solid var(--color-border)',
-        }}>
-          <div className="agent-breathing-dot"></div>
-          <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--color-text-secondary)' }}>
-            {backendStatus}
-          </span>
+        {/* Active Wishes Tab */}
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <button
+            onClick={() => setActiveView(activeView === 'wishing' ? 'wishes' : 'wishing')}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '20px',
+              background: activeView === 'wishes' ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+              border: `1px solid ${activeView === 'wishes' ? 'rgba(56, 189, 248, 0.5)' : 'rgba(255, 255, 255, 0.1)'}`,
+              color: activeView === 'wishes' ? 'var(--color-accent-primary)' : 'var(--color-text-primary)',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <span>Active Wishes</span>
+            {activeWishList.length > 0 && (
+              <span style={{
+                background: 'var(--color-accent-primary)',
+                color: '#000',
+                padding: '2px 8px',
+                borderRadius: '10px',
+                fontSize: '11px',
+                fontWeight: '800'
+              }}>
+                {activeWishList.length}
+              </span>
+            )}
+          </button>
         </div>
       </header>
 
       {/* ── Main Content Container ── */}
-      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '32px 20px 20px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 20px 20px' }}>
 
-      {/* ── Step 1 Authentication (Standard Width 540px) ── */}
-      <div style={{ maxWidth: '540px', margin: '0 auto 4px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      {/* ── Step 1 Authentication (Side-by-Side 800px) ── */}
+      <div style={{ maxWidth: '1000px', margin: '0 auto 4px', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '16px' }}>
         <WalletConnect onWalletConnected={(addr) => setConnectedWalletAddress(addr)} />
         <WorldIDGate
           verifiedHuman={verifiedHuman}
@@ -137,42 +156,54 @@ export default function App() {
         </span>
       </div>
 
-      {/* ── Praying Hands Visual + Expanded Wish Chat Portal ── */}
-      <PrayingHands isOpen={isStep1Complete}>
-        <WishChat
-          verifiedHuman={verifiedHuman}
-          onWishConfirmed={async (confirmedWish) => {
-            // Optimistically update UI
-            setActiveWishList([confirmedWish, ...activeWishList]);
-            
-            // Send to backend Agent Poller
-            if (verifiedHuman) {
-              try {
-                await fetch('/api/wishes', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    nullifierHash: verifiedHuman.nullifier,
-                    wish: confirmedWish,
-                  }),
-                });
-                console.log('✅ Wish successfully submitted to Agent Poller!');
-              } catch (err) {
-                console.error('❌ Failed to submit wish to backend:', err);
+      {/* ── Main Content Area (Conditional View) ── */}
+      {activeView === 'wishing' ? (
+        <PrayingHands isOpen={isStep1Complete}>
+          <WishChat
+            verifiedHuman={verifiedHuman}
+            onWishConfirmed={async (confirmedWish) => {
+              // Optimistically update UI
+              setActiveWishList([confirmedWish, ...activeWishList]);
+              setActiveView('wishes'); // Switch to wishes view automatically
+              
+              // Send to backend Agent Poller
+              if (verifiedHuman) {
+                try {
+                  await fetch('/api/wishes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      nullifierHash: verifiedHuman.nullifier,
+                      wish: confirmedWish,
+                    }),
+                  });
+                  console.log('✅ Wish successfully submitted to Agent Poller!');
+                } catch (err) {
+                  console.error('❌ Failed to submit wish to backend:', err);
+                }
               }
-            }
-          }}
-        />
-      </PrayingHands>
-
-      {/* ── Active Wishes Monitoring Cards (Standard Width 540px) ── */}
-      {isStep1Complete && (
-        <div style={{ maxWidth: '540px', margin: '0 auto' }}>
-          {activeWishList.length > 0 && (
-            <div style={{ marginTop: '24px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px' }}>
-                Active Wishes ({activeWishList.length})
-              </h3>
+            }}
+          />
+        </PrayingHands>
+      ) : (
+        <div style={{ maxWidth: '600px', margin: '40px auto 20px' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: '800', marginBottom: '24px', textAlign: 'center', color: 'var(--color-text-primary)' }}>
+            Your Active Wishes
+          </h2>
+          {activeWishList.length === 0 ? (
+            <div style={{ textAlign: 'center', color: 'var(--color-text-secondary)', padding: '40px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+              You have no active wishes monitoring the blockchain.
+              <br/><br/>
+              <button 
+                onClick={() => setActiveView('wishing')} 
+                className="btn-primary" 
+                style={{ padding: '8px 24px', borderRadius: '20px', fontSize: '13px' }}
+              >
+                Make a Wish
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {activeWishList.map((wish, idx) => (
                 <WishCard
                   key={idx}
@@ -188,6 +219,7 @@ export default function App() {
           )}
         </div>
       )}
+
     </div>
     </>
   );
