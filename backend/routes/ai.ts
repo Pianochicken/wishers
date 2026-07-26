@@ -33,7 +33,7 @@ const getAIClients = () => {
 
 // Layer 3: Zod Schema for Strict Server-Side Validation
 export const wishIntentZodSchema = z.object({
-  conditionType: z.enum(['PRICE_ABOVE', 'PRICE_BELOW', 'TVL_ABOVE', 'TVL_BELOW', 'PERCENTAGE_DROP']),
+  conditionType: z.enum(['PRICE_ABOVE', 'PRICE_BELOW', 'TVL_ABOVE', 'TVL_BELOW', 'PERCENTAGE_DROP', 'PERCENTAGE_RISE']),
   targetTokenSymbol: z.string().min(1).max(10),
   thresholdValue: z.number().positive(),
   thresholdUnit: z.string().describe("e.g. '$', '%', or empty string '' if none"),

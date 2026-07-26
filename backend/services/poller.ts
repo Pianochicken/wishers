@@ -63,6 +63,11 @@ export function startAgentPolling(intervalMs: number = 30000) {
             metricUsed = 'Price (Drop)';
             currentValue = metrics.currentPrice;
             break;
+          case 'PERCENTAGE_RISE':
+            conditionMet = metrics.currentPrice > (1.0 * (1 + (wish.thresholdValue / 100)));
+            metricUsed = 'Price (Rise)';
+            currentValue = metrics.currentPrice;
+            break;
         }
 
         if (conditionMet) {

@@ -101,3 +101,14 @@ Before running WISHERS locally, you need to set up a few developer accounts and 
 5. Click **Confirm Wish**.
 6. The **WISHERS Agent** continuously monitors The Graph in the background. Once the TVL reaches your threshold, your Agent signs the AgentKit SIWE payload and automatically executes the trade on Uniswap!
 7. Click the generated **Worldscan** link on your Active Wishes dashboard to view the on-chain execution.
+
+### 🤖 Supported AI Intents
+The WISHERS Groq AI currently parses natural language into the following strictly-typed monitoring conditions:
+- **`PRICE_ABOVE`**: Triggers when the token price rises above a specific threshold. *(e.g., "If WETH price goes above 3500...")*
+- **`PRICE_BELOW`**: Triggers when the token price drops below a specific threshold. *(e.g., "If ETH drops below 2000...")*
+- **`TVL_ABOVE`**: Triggers when the pool's Total Value Locked exceeds a threshold, signaling massive liquidity influx. *(e.g., "If TVL rises above $200M...")*
+- **`TVL_BELOW`**: Triggers when the pool's Total Value Locked crashes, acting as a Rug Pull or flash crash protection. *(e.g., "If the TVL drops below $50M...")*
+- **`PERCENTAGE_DROP`**: Triggers based on a sudden percentage drop in asset value. *(e.g., "If the token drops by 10%...")*
+- **`PERCENTAGE_RISE`**: Triggers based on a sudden percentage rise in asset value. *(e.g., "If the token surges by 15%...")*
+
+---
