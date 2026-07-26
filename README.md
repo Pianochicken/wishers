@@ -26,6 +26,10 @@ The architecture of WISHERS is broken down into a React frontend and a Node.js/E
 
 ---
 
+<img width="1920" height="931" alt="wishers-sequence-diagram" src="https://github.com/user-attachments/assets/f5e75afd-618a-42ac-9ac2-4821287cf54f" />
+
+---
+
 ## 📖 Getting Started: Step-by-Step Guide
 
 ### Prerequisites
