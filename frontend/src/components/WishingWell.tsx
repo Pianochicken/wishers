@@ -38,7 +38,7 @@ export default function WishingWell({ parsedWish, onCancel, onConfirmWish }: Wis
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ color: 'var(--color-text-secondary)' }}>Condition:</span>
             <span style={{ fontWeight: '600', color: 'var(--color-warning)' }}>
-              {parsedWish.conditionType} &ge; {parsedWish.thresholdValue}{parsedWish.thresholdUnit ?? '%'}
+              {parsedWish.conditionType.replace('_', ' ')} {(parsedWish.conditionType.includes('BELOW') || parsedWish.conditionType === 'PERCENTAGE_DROP') ? '<' : '>'} {parsedWish.thresholdUnit === '$' ? '$' : ''}{parsedWish.thresholdValue >= 1000000 ? `${parsedWish.thresholdValue / 1000000}M` : parsedWish.thresholdValue.toLocaleString()}{parsedWish.thresholdUnit !== '$' ? (parsedWish.thresholdUnit ?? '%') : ''}
             </span>
           </div>
 
